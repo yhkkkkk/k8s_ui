@@ -81,12 +81,15 @@
       <el-container>
         <!-- header -->
         <el-header class="header">
+          <!-- gutter="20"代表el-col的间距 -->
           <el-row :gutter="20">
             <el-col :span="1">
               <!-- 折叠按钮 -->
               <div class="header-collapse" @click="onCollapse">
+                <!-- isCollapse为true 表示关闭 图标显示的是展开 -->
                 <el-icon
-                  ><component :is="isCollapse ? 'expand' : 'fold'"
+                  ><!-- component是一个动态组件，动态组件需要使用is属性 会根据is属性的值切换不同的组件 -->
+                  <component :is="isCollapse ? 'expand' : 'fold'"
                 /></el-icon>
               </div>
             </el-col>
@@ -181,8 +184,8 @@ export default {
         this.asideWidth = "220px";
         this.isCollapse = false;
       } else {
-        this.isCollapse = true;
         this.asideWidth = "64px";
+        this.isCollapse = true;
       }
     },
     //登出

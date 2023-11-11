@@ -33,7 +33,7 @@ const routes = [
     name: "工作负载",
     component: Layout,
     icon: "menu",
-    meta: { title: "工作负载", requireAuth: true },
+    meta: { title: "工作负载", requireAuth: false },
     children: [
       {
         path: "/workload/deployment",
@@ -100,9 +100,8 @@ const router = createRouter({
   routes,
 });
 
-// 创建路由实例
 NProgress.inc(0.2); // 进度条递增
-NProgress.configure({ easing: "ease", speed: 500, showSpinner: false }); // 动画效果、动画速度、进度环
+NProgress.configure({ easing: "ease", speed: 500, showSpinner: true }); // 动画效果、动画速度、进度环
 
 // 路由守卫(拦截)
 router.beforeEach((to, from, next) => {

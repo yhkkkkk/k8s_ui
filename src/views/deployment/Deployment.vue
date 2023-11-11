@@ -1,3 +1,399 @@
 <template>
-    
+  <div class="deploy">
+    <el-row>
+      <!-- 头部1 -->
+      <el-col :span="24">
+        <div>
+          <!-- 包一层卡片 -->
+          <el-card class="deploy-head-card" shadow="never" :body-style="{padding: '10px'}">
+            <el-row>
+              <!-- 命名空间的下拉框 -->
+              <el-col :span="6">
+                <div>
+                  <span>命名空间: </span>
+                  <!-- 选择器 -->
+                  <!-- filterable 带搜索功能 -->
+                  <!-- placeholder 默认展示 -->
+                  <!-- label 展示内容 -->
+                  <!-- value 绑定到v-model的值中 -->
+                  <el-select v-model="namespaceValue" placeholder="请选择命名空间" filterable style="width: 100%">
+                    <el-option
+                        v-for="(item, index) in namespacesList"
+                        :key="index"
+                        :label="item.metadata.name"
+                        :value="item.metadata.name">
+                    </el-option>
+                  </el-select>
+                </div>
+              </el-col>
+              <!-- 刷新按钮 -->
+              <el-col :span="2" :offset="16">
+                <div>
+                  <!-- 每次刷新，都重新调一次list接口，刷新表格中的数据 -->
+                  <el-button style="border-radius:2px;" icon="Refresh" plain>刷新</el-button>
+                </div>
+              </el-col>
+            </el-row>
+          </el-card>
+        </div>
+      </el-col>
+      <!-- 头部2 -->
+      <el-col :span="24">
+        <div>
+          <!-- 包一层卡片 -->
+          <el-card class="deploy-head-card" shadow="never" :body-style="{padding:'10px'}">
+            <el-row>
+              <!-- 创建按钮 -->
+              <el-col :span="2">
+                <div>
+                  <!-- 点击后打开抽屉，填入创建deployment需要的数据 -->
+                  <el-button style="border-radius:2px;" icon="Edit" type="primary" @click="createDeploymentDrawer = true" v-loading.fullscreen.lock="fullscreenLoading">创建</el-button>
+                </div>
+              </el-col>
+              <!-- 搜索框和搜索按钮 -->
+              <el-col :span="6">
+                <div>
+                  <!-- clearable能出现一个一键清空的图标 -->
+                  <el-input class="deploy-head-search" clearable placeholder="请输入" v-model="searchInput"></el-input>
+                  <el-button style="border-radius:2px;" icon="Search" type="primary" plain>搜索</el-button>
+                </div>
+              </el-col>
+            </el-row>
+          </el-card>
+        </div>
+      </el-col>
+      <!-- 数据表格 -->
+      <el-col :span="24"></el-col>
+    </el-row>
+    <!-- 抽屉：创建Deployment的表单 -->
+    <!-- v-model 值是bool，用于显示与隐藏 -->
+    <!-- direction 显示的位置 -->
+    <!-- before-close 关闭时触发，点击关闭或者点击空白都会触发 -->
+    <el-drawer
+        v-model="createDeploymentDrawer"
+        :direction="direction"
+        :before-close="handleClose">
+      <!-- 插槽，抽屉标题 -->
+      <template #title>
+        <h4>创建Deployment</h4>
+      </template>
+      <!-- 插槽，抽屉body -->
+      <template #default>
+        <!-- flex布局,居中 -->
+        <el-row type="flex" justify="center">
+          <el-col :span="20">
+            <!-- ref绑定控件后，js中才能用this.$ref获取该控件 -->
+            <!-- rules 定义form表单校验规则 -->
+            <el-form ref="createDeployment" :rules="createDeploymentRules" :model="createDeployment" label-width="80px">
+              <!-- prop用于rules中的校验规则的key -->
+              <el-form-item class="deploy-create-form" label="名称" prop="name">
+                <el-input v-model="createDeployment.name"></el-input>
+              </el-form-item>
+              <el-form-item class="deploy-create-form" label="命名空间" prop="namespace">
+                <el-select v-model="createDeployment.namespace" filterable placeholder="请选择">
+                  <el-option
+                      v-for="(item, index) in namespaceList"
+                      :key="index"
+                      :label="item.metadata.name"
+                      :value="item.metadata.name">
+                  </el-option>
+                </el-select>
+              </el-form-item>
+              <!-- 数字输入框，最小为1，最大为10 -->
+              <el-form-item class="deploy-create-form" label="副本数" prop="replicas">
+                <el-input-number v-model="createDeployment.replicas" :min="1" :max="10"></el-input-number>
+                <!-- 气泡弹出框用于提醒上限 -->
+                <el-popover
+                    placement="top"
+                    :width="100"
+                    trigger="hover"
+                    content="申请副本数上限为10个">
+                  <template #reference>
+                    <el-icon style="width:2em; font-size:18px; color:#4795EE"><WarningFilled/></el-icon>
+                  </template>
+                </el-popover>
+              </el-form-item>
+              <el-form-item class="deploy-create-form" label="镜像" prop="image">
+                <el-input v-model="createDeployment.image"></el-input>
+              </el-form-item>
+              <el-form-item class="deploy-create-form" label="标签" prop="label_str">
+                <el-input v-model="createDeployment.label_str" placeholder="示例: project=ms,app=gateway"></el-input>
+              </el-form-item>
+              <!-- 下拉框，用于规格的选择，之后用/分割，得到cpu和内存 -->
+              <el-form-item class="deploy-create-form" label="资源配额" prop="resource">
+                <el-select v-model="createDeployment.resource" placeholder="请选择">
+                  <el-option value="0.5/1" label="0.5C1G"></el-option>
+                  <el-option value="1/2" label="1C2G"></el-option>
+                  <el-option value="2/4" label="2C4G"></el-option>
+                  <el-option value="4/8" label="4C8G"></el-option>
+                </el-select>
+              </el-form-item>
+              <el-form-item class="deploy-create-form" label="容器端口" prop="container_port">
+                <el-input v-model="createDeployment.container_port" placeholder="示例: 80"></el-input>
+              </el-form-item>
+              <el-form-item class="deploy-create-form" label="健康检查" prop="health">
+                <el-switch v-model="createDeployment.health_check" />
+              </el-form-item>
+              <el-form-item class="deploy-create-form" label="检查路径" prop="healthPath">
+                <el-input v-model="createDeployment.health_path" placeholder="示例: /health"></el-input>
+              </el-form-item>
+            </el-form>
+          </el-col>
+        </el-row>
+      </template>
+        <!-- 插槽，抽屉footer -->
+        <template #footer>
+          <!-- 点击后赋值false，隐藏抽屉 -->
+          <el-button @click="createDeploymentDrawer = false">取消</el-button>
+          <el-button type="primary" @click="submitForm('createDeployment')">立即创建</el-button>
+        </template>
+    </el-drawer>
+    <!-- 展示YAML信息的弹框 -->
+    <el-dialog title="YAML信息" v-model="yamlDialog" width="45%" top="2%">
+      <!-- codemirror编辑器 -->
+      <!-- border 带边框 -->
+      <!-- options  编辑器配置 -->
+      <!-- change 编辑器中的内容变化时触发 -->
+      <codemirror
+          :value="contentYaml"
+          border
+          :options="cmOptions"
+          height="500"
+          style="font-size:14px;"
+          @change="onChange"
+      ></codemirror>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="this.yamlDialog = false">取 消</el-button>
+          <el-button type="primary" @click="updateDeployment()">更 新</el-button>
+        </span>
+      </template>
+    </el-dialog>
+    <!-- 调整副本数的弹框 -->
+    <el-dialog title="副本数调整" v-model="scaleDialog" width="25%">
+      <div style="text-align:center">
+        <span>实例数: </span>
+        <el-input-number :step="1" v-model="scaleNum" :min="0" :max="30" label="描述文字"></el-input-number>
+      </div>
+      <template #footer>
+        <span class="dialog-footer">
+          <el-button @click="scaleDialog = false">取 消</el-button>
+          <el-button type="primary" @click="scaleDeployment()">更 新</el-button>
+        </span>
+      </template>
+    </el-dialog>
+  </div>
 </template>
+
+<script>
+import common from "../common/config"
+import httpClient from "@/utils/request";
+import {WarningFilled} from "@element-plus/icons-vue";
+
+export default {
+  name: 'Deployment',
+  components: {WarningFilled},
+  data() {
+    return {
+      // 命名空间的下拉框
+      namespaceValue: 'default',
+      // 命名空间列表
+      namespacesList: [],
+      namespaceListUrl: common.k8sNamespaceList,
+      // 搜索框内容  即在输入框输入的内容
+      searchInput: '',
+      // 创建
+      fullscreenLoading: false,
+      direction: 'rtl',
+      createDeploymentDrawer: false,
+      createDeployment: {
+        name: '',
+        namespace: '',
+        replicas: 1,
+        image: '',
+        resource: '',
+        health_check: false,
+        health_path: '',
+        label_str: '',
+        label: {},
+        container_port: ''
+      },
+      //创建请求的参数
+      createDeploymentData: {
+        url: common.k8sDeploymentCreate,
+        params: {}
+      },
+      //创建deployment的表单校验规则
+      createDeploymentRules: {
+        name: [{
+          required: true,
+          message: '请填写名称',
+          trigger: 'change'
+        }],
+        image: [{
+          required: true,
+          message: '请填写镜像',
+          trigger: 'change'
+        }],
+        namespace: [{
+          required: true,
+          message: '请选择命名空间',
+          trigger: 'change'
+        }],
+        resource: [{
+          required: true,
+          message: '请选择配额',
+          trigger: 'change'
+        }],
+        label_str: [{
+          required: true,
+          message: '请填写标签',
+          trigger: 'change'
+        }],
+        container_port: [{
+          required: true,
+          message: '请填写容器端口',
+          trigger: 'change'
+        }],
+      },
+    }
+  },
+  mounted() {
+    // 调用接口获取命名空间列表
+    // this.getNamesapceList();
+  },
+  methods: {
+    // getNamespaceList() {
+    //   // 调用接口
+    //   httpClient.get('/api/v1/namespaces').then()
+    // }
+    //处理抽屉的关闭，增加体验感
+    handleClose(done) {
+      this.$confirm('确认关闭？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+          done();
+        })
+          .catch(() => {});
+    },
+    // 获取Namespace列表
+    getNamespacesList() {
+      httpClient.get(this.namespaceListUrl)
+          // 请求成功的回调函数
+          .then(res => {
+            this.namespacesList = res.data.items;
+          })
+          // 请求失败的回调函数
+          .catch(res => {
+            this.$message.error({
+              message: res.msg
+            });
+          })
+    },
+    //创建deployment，加Func的原因是因为createDeploy用于属性了
+    createDeployFunc() {
+      //正则匹配，验证label的合法性
+      let reg = new RegExp("(^[A-Za-z]+=[A-Za-z0-9]+).*")
+      if (!reg.test(this.createDeployment.label_str)) {
+        this.$message.warning({
+          message: "标签填写异常，请确认后重新填写"
+        })
+        return
+      }
+      //加载loading动画
+      this.fullscreenLoading = true
+      //定义label、cpu和memory变量
+      //'app=xxx,version=yyy'
+      //['app=xxx','version=yyy']
+      //[['app','xxx'],['version','yyy']]
+      //map['app']='xxx',map['version']=yyy
+      let label = new Map()
+      let cpu, memory
+      //将label字符串转成数组
+      let a = (this.createDeployment.label_str).split(",")
+      //将数组转成map
+      a.forEach(item => {
+        let b = item.split("=")
+        label[b[0]] = b[1]
+      })
+      //将deployment的规格转成cpu和memory
+      let resourceList = this.createDeployment.resource.split("/")
+      cpu = resourceList[0]
+      memory = resourceList[1] + "Gi"
+      //赋值
+      this.createDeploymentData.params = this.createDeployment
+      this.createDeploymentData.params.container_port = parseInt(this.createDeployment.container_port)
+      this.createDeploymentData.params.label = label
+      this.createDeploymentData.params.cpu = cpu
+      this.createDeploymentData.params.memory = memory
+      httpClient.post(this.createDeploymentData.url,
+          this.createDeploymentData.params)
+          .then(res => {
+            this.$message.success({
+              message: res.msg
+            })
+            //创建后重新获取列表
+            this.getDeployments()
+          })
+          .catch(res => {
+            this.$message.error({
+              message: res.msg
+            })
+          })
+      //重置表单
+      this.resetForm('createDeployment')
+      //关闭加载动画
+      this.fullscreenLoading = false
+      //关闭抽屉
+      this.createDeploymentDrawer = false
+    },
+    //重置表单方法，element plus课程讲过的
+    resetForm(formName) {
+      this.$refs[formName].resetFields()
+    },
+    //提交表单，校验参数合法性
+    submitForm(formName) {
+      this.$refs[formName].validate((valid) => {
+        if (valid) {
+          this.createDeployFunc()
+        } else {
+          return false;
+        }
+      })
+    }
+  },
+  watch: {
+    // 监听namespace的值 若发生变化 则执行handler方法中的内容
+    namespaceValue: {
+      handler() {
+        // 将namespace的值存入本地 用于path切换时依旧能获取得到
+        localStorage.setItem('namespace', this.namespaceValue)
+      }
+    },
+  },
+  beforeMount() {
+    // 加载页面时先获取localStorage中的namespace值 若不能获取则默认default
+    if (localStorage.getItem('namespace') !== undefined && localStorage.getItem('namespace')!== null) {
+      this.namespaceValue = localStorage.getItem('namespace')
+    } else {
+      this.namespaceValue = 'default'
+    }
+    this.getNamespacesList()
+  }
+}
+</script>
+
+<style scoped>
+  /* 卡片属性 */
+  .deploy-head-card, .deploy-body-card {
+    border-radius: 1px;
+    margin-bottom: 5px;
+  }
+  /* 搜索框 */
+  .deploy-head-search {
+    width:160px;
+    margin-right:10px;
+  }
+</style>
