@@ -109,6 +109,7 @@
                     trigger="hover"
                     content="申请副本数上限为10个">
                   <template #reference>
+                    <!-- reference用于 触发 Popover 显示的 HTML 元素 -->
                     <el-icon style="width:2em; font-size:18px; color:#4795EE"><WarningFilled/></el-icon>
                   </template>
                 </el-popover>
@@ -122,10 +123,10 @@
               <!-- 下拉框，用于规格的选择，之后用/分割，得到cpu和内存 -->
               <el-form-item class="deploy-create-form" label="资源配额" prop="resource">
                 <el-select v-model="createDeployment.resource" placeholder="请选择">
-                  <el-option value="0.5/1" label="0.5C1G"></el-option>
-                  <el-option value="1/2" label="1C2G"></el-option>
-                  <el-option value="2/4" label="2C4G"></el-option>
-                  <el-option value="4/8" label="4C8G"></el-option>
+                  <el-option value="0.5/1" label="0.5/C1G"></el-option>
+                  <el-option value="1/2" label="1C/2G"></el-option>
+                  <el-option value="2/4" label="2C/4G"></el-option>
+                  <el-option value="4/8" label="4C/8G"></el-option>
                 </el-select>
               </el-form-item>
               <el-form-item class="deploy-create-form" label="容器端口" prop="container_port">
