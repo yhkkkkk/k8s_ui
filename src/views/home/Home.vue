@@ -10,7 +10,7 @@
                               <el-progress  :stroke-width="20" :show-text="false" type="circle" :percentage="namespaceActive/namespaceTotal * 100"></el-progress>
                           </div>
                           <div>
-                              <p class="home-node-card-title">命名空间: Active/总量</p>
+                              <p class="home-node-card-title">命名空间: Active / 总量</p>
                               <p class="home-node-card-num">{{ namespaceActive }}/{{ namespaceTotal }}</p>
                           </div>
                       </el-card>
@@ -41,7 +41,7 @@
                               <el-progress :stroke-width="20" :show-text="false" type="circle" :percentage="nodeTotal/nodeTotal * 100"></el-progress>
                           </div>
                           <div>
-                              <p class="home-node-card-title">节点: Ready/总数量</p>
+                              <p class="home-node-card-title">节点: Ready / 总数量</p>
                               <p class="home-node-card-num">{{ nodeTotal }}/{{ nodeTotal }}</p>
                           </div>
                       </el-card>
@@ -52,7 +52,7 @@
                               <el-progress :stroke-width="20" :show-text="false" type="circle" :percentage="nodeCpuAllocatable/nodeCpuCapacity * 100"></el-progress>
                           </div>
                           <div>
-                              <p class="home-node-card-title">CPU: 可分配/容量</p>
+                              <p class="home-node-card-title">CPU: 可分配 / 容量</p>
                               <p class="home-node-card-num">{{ nodeCpuAllocatable }}/{{ nodeCpuCapacity }}</p>
                           </div>
                       </el-card>
@@ -63,7 +63,7 @@
                               <el-progress :stroke-width="20" :show-text="false" type="circle" :percentage="nodeMemAllocatable/nodeMemCapacity * 100"></el-progress>
                           </div>
                           <div>
-                              <p class="home-node-card-title">内存: 可分配/容量</p>
+                              <p class="home-node-card-title">内存: 可分配 / 容量</p>
                               <p class="home-node-card-num">{{ specTrans(nodeMemAllocatable) }}Gi/{{ specTrans(nodeMemCapacity) }}Gi</p>
                           </div>
                       </el-card>
@@ -74,7 +74,7 @@
                               <el-progress :stroke-width="20" :show-text="false" type="circle" :percentage="nodePodAllocatable/nodePodAllocatable * 100"></el-progress>
                           </div>
                           <div>
-                              <p class="home-node-card-title">POD: 可分配/容量</p>
+                              <p class="home-node-card-title">POD: 可分配 / 容量</p>
                               <p class="home-node-card-num">{{ nodePodAllocatable }}/{{ nodePodAllocatable }}</p>
                           </div>
                       </el-card>

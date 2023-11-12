@@ -41,7 +41,7 @@
       <el-col :span="24">
         <div>
           <!-- 包一层卡片 -->
-          <el-card class="deploy-head-card" shadow="never" :body-style="{padding:'10px'}">
+          <el-card class="deploy-head-card" shadow="never" :body-style="{padding: '10px'}">
             <el-row>
               <!-- 创建按钮 -->
               <el-col :span="2">
@@ -63,7 +63,120 @@
         </div>
       </el-col>
       <!-- 数据表格 -->
-      <el-col :span="24"></el-col>
+      <el-col :span="24">
+        <div>
+          <!-- 包一层卡片 -->
+          <el-card class="deploy-body-card" shadow="never" :body-style="{padding:'5px'}">
+            <!-- 数据表格 -->
+            <!-- v-loading用于加载时的loading动画 true表示显示 false表示不显示-->
+            <el-table
+                style="width: 100%; font-size: 12px; margin-bottom: 10px;"
+                :data="deploymentList"
+                stripe
+                v-loading="appLoading">
+              <!-- Deployment名的最左侧留出20px的宽度 -->
+              <el-table-column width="50"></el-table-column>
+              <!-- deployment名字 -->
+              <el-table-column align=left label="Deployment名">
+                <!-- 插槽，scope.row获取当前行的数据 -->
+                <template v-slot="scope">
+                  <a class="deploy-body-deployname">{{
+                      scope.row.metadata.name }}</a>
+                </template>
+              </el-table-column>
+              <!-- 标签 -->
+              <el-table-column align=center label="标签">
+                <template v-slot="scope">
+                  <!-- for循环，每个label只显示固定长度，鼠标悬停后气泡弹出
+                  框显示完整长度 -->
+                  <div v-for="(val, key) in scope.row.metadata.labels" :key="key">
+                    <!-- 气泡弹出框 -->
+                    <!-- placement 弹出位置 -->
+                    <!-- trigger 触发条件 -->
+                    <!-- content 弹出框内容 -->
+                    <el-popover
+                        placement="right"
+                        :width="200"
+                        trigger="hover"
+                        :content="key + ':' + val">
+                      <template #reference>
+                        <!-- ellipsis方法用于剪裁字符串 -->
+                        <el-tag style="margin-bottom: 5px" type="warning">{{ ellipsis(key + ":" + val) }}</el-tag>
+                      </template>
+                    </el-popover>
+                  </div>
+                </template>
+              </el-table-column>
+              <!-- 容器组 -->
+              <el-table-column align=center label="容器组">
+                <!-- 可用数量/总数量,三元运算，若值大于0则显示值，否则显示0 -->
+                <template v-slot="scope">
+                  <span> {{ scope.row.status.availableReplicas>0? scope.row.status.availableReplicas:0 }} / {{ scope.row.spec.replicas>0?
+                            scope.row.spec.replicas:0 }} </span>
+                </template>
+              </el-table-column>
+              <!-- 创建时间 -->
+              <el-table-column align=center min-width="100" label="创建时间">
+                <!-- timeTrans函数用于将格林威治时间转成北京时间 -->
+                <template v-slot="scope">
+                  <el-tag type="info">{{ timeTrans(scope.row.metadata.creationTimestamp) }} </el-tag>
+                </template>
+              </el-table-column>
+              <!-- 容器镜像 -->
+              <el-table-column align=center label="镜像">
+                <!-- 与label的显示逻辑一致 -->
+                <template v-slot="scope">
+                  <div v-for="(val, key) in scope.row.spec.template.spec.containers" :key="key">
+                    <el-popover
+                        placement="right"
+                        :width="200"
+                        trigger="hover"
+                        :content="val.image">
+                      <template #reference>
+                        <el-tag style="margin-bottom: 5px">{{
+                            ellipsis(val.image.split('/')[2] == undefined ? val.image : val.image.split('/')[2]) }}</el-tag>
+                      </template>
+                    </el-popover>
+                  </div>
+                </template>
+              </el-table-column>
+              <!-- 操作列，放按钮 -->
+              <el-table-column align=center label="操作" width="400">
+                <template v-slot="scope">
+                  <el-button size="small" style="border-radius:2px;"
+                             icon="Edit" type="primary" plain @click="getDeploymentDetail(scope)">YAML</el-button>
+                  <el-button size="small" style="border-radius:2px;"
+                             icon="Plus" type="primary" @click="handleScale(scope)">扩缩</el-button>
+                  <el-button size="small" style="border-radius:2px;"
+                             icon="RefreshLeft" type="primary" @click="handleConfirm(scope, '重启', restartDeployment)">重启</el-button>
+                  <el-button size="small" style="border-radius:2px;"
+                             icon="Delete" type="danger" @click="handleConfirm(scope, '删除', delDeployment)">删除
+                  </el-button>
+                </template>
+              </el-table-column>
+            </el-table>
+            <!-- 分页配置 -->
+            <!-- background 背景色灰 -->
+            <!-- size-change 单页大小改变后触发 -->
+            <!-- current-change 页数改变后触发 -->
+            <!-- current-page 当前页 -->
+            <!-- page-size 单页大小 -->
+            <!-- layout 分页器支持的功能 -->
+            <!-- total 数据总条数 -->
+            <el-pagination
+                class="deploy-body-pagination"
+                background
+                @size-change="handleSizeChange"
+                @current-change="handleCurrentChange"
+                :current-page="currentPage"
+                :page-sizes="pagesizeList"
+                :page-size="pagesize"
+                layout="total, sizes, prev, pager, next, jumper"
+                :total="deploymentTotal">
+            </el-pagination>
+          </el-card>
+        </div>
+      </el-col>
     </el-row>
     <!-- 抽屉：创建Deployment的表单 -->
     <!-- v-model 值是bool，用于显示与隐藏 -->
@@ -75,7 +188,7 @@
         :before-close="handleClose">
       <!-- 插槽，抽屉标题 -->
       <template #title>
-        <h4>创建Deployment</h4>
+        &nbsp;<h4>创建Deployment</h4>
       </template>
       <!-- 插槽，抽屉body -->
       <template #default>
@@ -123,7 +236,7 @@
               <!-- 下拉框，用于规格的选择，之后用/分割，得到cpu和内存 -->
               <el-form-item class="deploy-create-form" label="资源配额" prop="resource">
                 <el-select v-model="createDeployment.resource" placeholder="请选择">
-                  <el-option value="0.5/1" label="0.5/C1G"></el-option>
+                  <el-option value="0.5/1" label="0.5C/1G"></el-option>
                   <el-option value="1/2" label="1C/2G"></el-option>
                   <el-option value="2/4" label="2C/4G"></el-option>
                   <el-option value="4/8" label="4C/8G"></el-option>
@@ -189,13 +302,57 @@
 <script>
 import common from "../common/config"
 import httpClient from "@/utils/request";
-import {WarningFilled} from "@element-plus/icons-vue";
+import { WarningFilled } from "@element-plus/icons-vue";
+//codemirror编辑器
+import { GlobalCmComponent } from "codemirror-editor-vue3";
+// 引入主题 可以从 codemirror/theme/ 下引入多个
+import 'codemirror/theme/idea.css'
+// 引入语言模式 可以从 codemirror/mode/ 下引入多个
+import 'codemirror/mode/yaml/yaml.js'
 
 export default {
   name: 'Deployment',
   components: {WarningFilled},
   data() {
     return {
+      // 编辑器配置
+      cmOptions: common.cmOptions,
+      contentYaml: '',
+      // 详情
+      deploymentDetail: {},
+      getDeploymentDetailData: {
+        url: common.k8sDeploymentDetail,
+        params: {
+          deployment_name: '',
+          namespace: ''
+        }
+      },
+      // yaml更新
+      yamlDialog: false,
+      updateDeploymentData: {
+        url: common.k8sDeploymentUpdate,
+        params: {
+          namespace: '',
+          content: ''
+        }
+      },
+      // 分页
+      currentPage: 1,
+      pagesize: 10,
+      pagesizeList: [10, 20, 30],
+      // 列表
+      appLoading: false,
+      deploymentList: [],
+      deploymentTotal: 0,
+      getDeploymentsData: {
+        url: common.k8sDeploymentList,
+        params: {
+          filter_name: '',
+          namespace: '',
+          page: '',
+          limit: '',
+        }
+      },
       // 命名空间的下拉框
       namespaceValue: 'default',
       // 命名空间列表
@@ -264,19 +421,118 @@ export default {
     // this.getNamesapceList();
   },
   methods: {
-    // getNamespaceList() {
-    //   // 调用接口
-    //   httpClient.get('/api/v1/namespaces').then()
-    // }
-    //处理抽屉的关闭，增加体验感
+    // json转yaml方法
+    transYaml(content) {
+      return json2yaml.stringify(content)
+    },
+    // yaml转对象
+    transObj(content) {
+      return yaml2obj.load(content)
+    },
+    // 编辑器内容变化时触发的方式,用于将更新的内容复制到变量中
+    onChange(val) {
+      this.contentYaml = val
+    },
+    //页面大小发生变化时触发，赋值并重新获取列表
+    handleSizeChange(size) {
+      this.pagesize = size;
+      this.getDeployments()
+    },
+    //页数发生变化时触发，复制并重新获取列表
+    handleCurrentChange(currentPage) {
+      this.currentPage = currentPage;
+      this.getDeployments()
+    },
+    // 字符串截取、拼接并返回
+    ellipsis(value) {
+      return value.length>15 ? value.substring(0,15)+'...' : value
+    },
+    // 格林威治时间转为北京时间
+    timeTrans(timestamp) {
+      let date = new Date(new Date(timestamp).getTime() + 8 * 3600 * 1000)
+      date = date.toJSON();
+      date = date.substring(0, 19).replace('T', ' ')
+      return date
+    },
+    // 获取Deployment列表
+    getDeployments() {
+      // 表格加载动画开启
+      this.appLoading = true
+      // getDeploymentsData是用于发起deployment列表请求的专用的对象，里面有url和params参数, 以下是赋值
+      this.getDeploymentsData.params.filter_name = this.searchInput
+      this.getDeploymentsData.params.namespace = this.namespaceValue
+      this.getDeploymentsData.params.page = this.currentPage
+      this.getDeploymentsData.params.limit = this.pagesize
+      httpClient.get(this.getDeploymentsData.url, {
+        params:
+        this.getDeploymentsData.params
+      })
+          .then(res => {
+          // 响应成功，获取deployment列表和total
+            this.deploymentList = res.data.items
+            this.deploymentTotal = res.data.total
+          })
+          .catch(res => {
+            this.$message.error({
+              message: res.msg
+            })
+          })
+      // 加载动画关闭
+      this.appLoading = false
+    },
+    // 获取deployment详情，e参数标识传入的scope插槽，.row是该行的数据
+    getDeploymentDetail(e) {
+      this.getDeploymentDetailData.params.deployment_name = e.row.metadata.name
+      this.getDeploymentDetailData.params.namespace = this.namespaceValue
+      httpClient.get(this.getDeploymentDetailData.url, {params:
+        this.getDeploymentDetailData.params})
+          .then(res => {
+            // 响应成功，获得deployment详情
+            this.deploymentDetail = res.data
+            // 将对象转成yaml格式的字符串
+            this.contentYaml = this.transYaml(this.deploymentDetail)
+            // 打开弹出框
+            this.yamlDialog = true
+          })
+          .catch(res => {
+            this.$message.error({
+              message: res.msg
+            })
+          })
+    },
+    //更新deployment
+    updateDeployment() {
+      // 将yaml格式的deployment对象转为json
+      let content = JSON.stringify(this.transObj(this.contentYaml))
+      this.updateDeploymentData.params.namespace = this.namespaceValue
+      this.updateDeploymentData.params.content = content
+      httpClient.put(this.updateDeploymentData.url,
+          this.updateDeploymentData.params)
+          .then(res => {
+            this.$message.success({
+              message: res.msg
+            })
+            // 更新后重新获取列表
+            this.getDeployments()
+          })
+          .catch(res => {
+            this.$message.error({
+              message: res.msg
+            })
+          })
+      // 关闭弹出框
+      this.yamlDialog = false
+    },
+    // 处理抽屉的关闭，增加体验感
     handleClose(done) {
       this.$confirm('确认关闭？', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
-      }).then(() => {
-          done();
-        })
+      })
+          .then(() => {
+            done();
+          })
           .catch(() => {});
     },
     // 获取Namespace列表
@@ -369,8 +625,12 @@ export default {
     // 监听namespace的值 若发生变化 则执行handler方法中的内容
     namespaceValue: {
       handler() {
-        // 将namespace的值存入本地 用于path切换时依旧能获取得到
+        // 将namespace的值存入本地，用于path切换时依旧能获取得到
         localStorage.setItem('namespace', this.namespaceValue)
+        // 重置当前页为1
+        this.currentPage = 1
+        // 获取deployment列表
+        this.getDeployments()
       }
     },
   },
@@ -396,5 +656,15 @@ export default {
   .deploy-head-search {
     width:160px;
     margin-right:10px;
+  }
+  /* 数据表格deployment名颜色 */
+  .deploy-body-deployname {
+    color: #4795EE;
+  }
+  /* deployment名鼠标悬停 */
+  .deploy-body-deployname:hover {
+    color: rgb(84, 138, 238);
+    cursor: pointer;
+    font-weight: bold;
   }
 </style>

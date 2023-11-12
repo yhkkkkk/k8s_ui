@@ -58,6 +58,7 @@ export default {
     k8sPvList: 'http://localhost:9090/api/k8s/pvs',
     k8sPvDetail: 'http://localhost:9090/api/k8s/pv/detail',
     k8sTerminalWs: 'ws://localhost:8081/ws',
+
     //编辑器配置
     cmOptions: {
         // 语言及语法模式
