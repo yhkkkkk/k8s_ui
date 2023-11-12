@@ -8,7 +8,7 @@ import Layout from "@/layout/Layout.vue";
 const routes = [
   {
     path: "/", //视图
-    redirect: "/",
+    redirect: "/home",
   },
   {
     path: "/home",

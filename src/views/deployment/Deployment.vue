@@ -42,17 +42,17 @@
         <div>
           <!-- 包一层卡片 -->
           <el-card class="deploy-head-card" shadow="never" :body-style="{padding: '10px'}">
-            <el-row>
+            <el-row :gutter="20">
               <!-- 创建按钮 -->
               <el-col :span="2">
                 <div>
                   <!-- 点击后打开抽屉，填入创建deployment需要的数据 -->
-                  <el-button style="border-radius: 2px;" icon="Edit" type="primary" @click="createDeploymentDrawer = true" v-loading.fullscreen.lock="fullscreenLoading">创建</el-button>
+                  <el-button style="border-radius: 2px;" icon="Edit" type="primary" @click="createDeploymentDrawer = true" v-loading.fullscreen.lock = "fullscreenLoading">创建</el-button>
                 </div>
               </el-col>
               <!-- 搜索框和搜索按钮 -->
-              <el-col :span="6">
-                <div style="margin-left: 10px">
+              <el-col :span="6" :offset="19">
+                <div>
                   <!-- clearable能出现一个一键清空的图标 -->
                   <el-input class="deploy-head-search" clearable placeholder="请输入" v-model="searchInput"></el-input>
                   <el-button style="border-radius: 2px" icon="Search" type="primary" plain>搜索</el-button>
@@ -68,9 +68,9 @@
           <!-- 包一层卡片 -->
           <el-card class="deploy-body-card" shadow="never" :body-style="{padding:'5px'}">
             <!-- 数据表格 -->
-            <!-- v-loading用于加载时的loading动画 true表示显示 false表示不显示-->
+            <!-- v-loading用于加载时的loading动画 true表示显示 false表示不显示 stripe代表斑马纹状表格 -->
             <el-table
-                style="width: 100%; font-size: 12px; margin-bottom: 10px;"
+                style="width: 100%; font-size: 12px; margin-bottom: 15px;"
                 :data="deploymentList"
                 stripe
                 v-loading="appLoading">
@@ -80,8 +80,7 @@
               <el-table-column align=left label="Deployment名">
                 <!-- 插槽，scope.row获取当前行的数据 -->
                 <template v-slot="scope">
-                  <a class="deploy-body-deployname">{{
-                      scope.row.metadata.name }}</a>
+                  <a class="deploy-body-deployname">{{ scope.row.metadata.name }}</a>
                 </template>
               </el-table-column>
               <!-- 标签 -->
@@ -111,8 +110,8 @@
               <el-table-column align=center label="容器组">
                 <!-- 可用数量/总数量,三元运算，若值大于0则显示值，否则显示0 -->
                 <template v-slot="scope">
-                  <span> {{ scope.row.status.availableReplicas>0? scope.row.status.availableReplicas:0 }} / {{ scope.row.spec.replicas>0?
-                            scope.row.spec.replicas:0 }} </span>
+                  <span> {{ scope.row.status.availableReplicas > 0 ? scope.row.status.availableReplicas: 0 }} / {{ scope.row.spec.replicas > 0?
+                            scope.row.spec.replicas: 0 }} </span>
                 </template>
               </el-table-column>
               <!-- 创建时间 -->
@@ -205,7 +204,7 @@
               <el-form-item class="deploy-create-form" label="命名空间" prop="namespace">
                 <el-select v-model="createDeployment.namespace" filterable placeholder="请选择">
                   <el-option
-                      v-for="(item, index) in namespaceList"
+                      v-for="(item, index) in namespacesList"
                       :key="index"
                       :label="item.metadata.name"
                       :value="item.metadata.name">
@@ -303,6 +302,8 @@
 import common from "../common/config"
 import httpClient from "@/utils/request";
 import { WarningFilled } from "@element-plus/icons-vue";
+import yaml2obj from 'js-yaml';
+import json2yaml from 'json2yaml';
 //codemirror编辑器
 import { GlobalCmComponent } from "codemirror-editor-vue3";
 // 引入主题 可以从 codemirror/theme/ 下引入多个
@@ -315,6 +316,33 @@ export default {
   components: {WarningFilled},
   data() {
     return {
+      // 删除
+      delDeploymentData: {
+        url: common.k8sDeploymentDel,
+        params: {
+          deployment_name: '',
+          namespace: '',
+        }
+      },
+      // 重启
+      restartDeploymentData: {
+        url: common.k8sDeploymentRestart,
+        params: {
+          deployment_name: '',
+          namespace: '',
+        }
+      },
+      // 扩缩容
+      scaleNum: 0,
+      scaleDialog: false,
+      scaleDeploymentData: {
+        url: common.k8sDeploymentScale,
+        params: {
+          deployment_name: '',
+          namespace: '',
+          scale_num: ''
+        }
+      },
       // 编辑器配置
       cmOptions: common.cmOptions,
       contentYaml: '',
@@ -416,11 +444,91 @@ export default {
       },
     }
   },
-  mounted() {
-    // 调用接口获取命名空间列表
-    // this.getNamesapceList();
-  },
   methods: {
+    // 删除deployment
+    delDeployment(e) {
+      this.delDeploymentData.params.deployment_name = e.row.metadata.name
+      this.delDeploymentData.params.namespace = this.namespaceValue
+      httpClient.delete(this.delDeploymentData.url, {data:
+        this.delDeploymentData.params})
+          .then(res => {
+            this.$message.success({
+              message: res.msg
+            })
+            this.getDeployments()
+          })
+          .catch(res => {
+            this.$message.error({
+              message: res.msg
+            })
+          })
+    },
+    // 重启deployment
+    restartDeployment(e) {
+      this.restartDeploymentData.params.deployment_name = e.row.metadata.name
+      this.restartDeploymentData.params.namespace = this.namespaceValue
+      httpClient.put(this.restartDeploymentData.url,
+          this.restartDeploymentData.params)
+          .then(res => {
+            this.$message.success({
+              message: res.msg
+            })
+            this.getDeployments()
+          })
+          .catch(res => {
+            this.$message.error({
+              message: res.msg
+            })
+          })
+    },
+    // 弹出确认框，用于危险操作的double check
+    // obj是行数据，opeateName是操作名，fn是操作的方法
+    handleConfirm(obj, operateName, fn) {
+      this.confirmContent = '确认继续 ' + operateName + ' 操作吗？'
+      // $confirm用于弹出确认框
+      this.$confirm(this.confirmContent,'提示',{
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+      })
+          .then(() => {
+          // restartDeployment(e)或者delDeployment(e)
+            fn(obj)
+          })
+          .catch(() => {
+            this.$message.info({
+              message: '已取消操作'
+            })
+          })
+    },
+    // 扩缩容的中间方法，用于赋值及打开弹出框
+    handleScale(e) {
+      this.scaleDialog = true
+      this.deploymentDetail = e.row
+      this.scaleNum = e.row.spec.replicas
+    },
+    // 扩缩容deployment
+    scaleDeployment() {
+      this.scaleDeploymentData.params.deployment_name =
+          this.deploymentDetail.metadata.name
+      this.scaleDeploymentData.params.namespace = this.namespaceValue
+      this.scaleDeploymentData.params.scale_num = this.scaleNum
+      httpClient.put(this.scaleDeploymentData.url,
+          this.scaleDeploymentData.params)
+          .then(res => {
+            this.$message.success({
+              message: res.msg
+            })
+            // 更新后重新获取列表
+            this.getDeployments()
+          })
+          .catch(res => {
+            this.$message.error({
+              message: res.msg
+            })
+          })
+      // 关闭弹出框
+      this.scaleDialog = false
+    },
     // json转yaml方法
     transYaml(content) {
       return json2yaml.stringify(content)
