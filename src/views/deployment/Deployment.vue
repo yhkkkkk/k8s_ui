@@ -16,7 +16,7 @@
                   <!-- placeholder 默认展示 -->
                   <!-- label 展示内容 -->
                   <!-- value 绑定到v-model的值中 -->
-                  <el-select v-model="namespaceValue" placeholder="请选择命名空间" filterable style="width: 100%">
+                  <el-select v-model="namespaceValue" placeholder="请选择命名空间" filterable>
                     <el-option
                         v-for="(item, index) in namespacesList"
                         :key="index"
@@ -51,7 +51,7 @@
                 </div>
               </el-col>
               <!-- 搜索框和搜索按钮 -->
-              <el-col :span="6" :offset="19">
+              <el-col :span="6" :offset="16">
                 <div>
                   <!-- clearable能出现一个一键清空的图标 -->
                   <el-input class="deploy-head-search" clearable placeholder="请输入" v-model="searchInput"></el-input>
@@ -261,6 +261,7 @@
           <el-button type="primary" @click="submitForm('createDeployment')">立即创建</el-button>
         </template>
     </el-drawer>
+    <!-- dialog对话框 -->
     <!-- 展示YAML信息的弹框 -->
     <el-dialog title="YAML信息" v-model="yamlDialog" width="45%" top="2%">
       <!-- codemirror编辑器 -->
@@ -477,6 +478,7 @@ export default {
           })
           .catch(res => {
             this.$message.error({
+              // message: "服务器内部错误"
               message: res.msg
             })
           })
@@ -486,12 +488,12 @@ export default {
     handleConfirm(obj, operateName, fn) {
       this.confirmContent = '确认继续 ' + operateName + ' 操作吗？'
       // $confirm用于弹出确认框
-      this.$confirm(this.confirmContent,'提示',{
+      this.$confirm(this.confirmContent, '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
       })
           .then(() => {
-          // restartDeployment(e)或者delDeployment(e)
+            // restartDeployment(e)或者delDeployment(e)
             fn(obj)
           })
           .catch(() => {
@@ -582,7 +584,8 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              message: res.msg
+              message: "服务器内部错误"
+              // message: res.msg
             })
           })
       // 加载动画关闭
@@ -604,7 +607,8 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              message: res.msg
+              message: "服务器内部错误"
+              // message: res.msg
             })
           })
     },
@@ -653,7 +657,8 @@ export default {
           // 请求失败的回调函数
           .catch(res => {
             this.$message.error({
-              message: res.msg
+              message: "服务器内部错误"
+              // message: res.msg
             });
           })
     },
@@ -704,7 +709,8 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              message: res.msg
+              message: "服务器内部错误"
+              // message: res.msg
             })
           })
       //重置表单
