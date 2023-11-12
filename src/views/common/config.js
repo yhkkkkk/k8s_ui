@@ -59,7 +59,7 @@ export default {
     k8sPvDetail: 'http://localhost:9090/api/k8s/pv/detail',
     k8sTerminalWs: 'ws://localhost:8081/ws',
 
-    //编辑器配置
+    // codemirror 编辑器配置
     cmOptions: {
         // 语言及语法模式
         mode: 'text/yaml',
@@ -67,11 +67,11 @@ export default {
         theme: 'idea',
         // 显示行数
         lineNumbers: true,
-        smartIndent: true, //智能缩进
+        smartIndent: true, // 智能缩进
         indentUnit: 4, // 智能缩进单元长度为 4 个空格
         styleActiveLine: true, // 显示选中行的样式
-        matchBrackets: true, //每当光标位于匹配的方括号旁边时，都会使其高亮显示
+        matchBrackets: true, // 每当光标位于匹配的方括号旁边时，都会使其高亮显示
         readOnly: false,
-        lineWrapping: true //自动换行
+        lineWrapping: true // 自动换行
     }
 }

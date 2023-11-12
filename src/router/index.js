@@ -7,6 +7,10 @@ import Layout from "@/layout/Layout.vue";
 
 const routes = [
   {
+    path: "/", //视图
+    redirect: "/",
+  },
+  {
     path: "/home",
     name: "概要",
     icon: "odometer",

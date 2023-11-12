@@ -47,15 +47,15 @@
               <el-col :span="2">
                 <div>
                   <!-- 点击后打开抽屉，填入创建deployment需要的数据 -->
-                  <el-button style="border-radius:2px;" icon="Edit" type="primary" @click="createDeploymentDrawer = true" v-loading.fullscreen.lock="fullscreenLoading">创建</el-button>
+                  <el-button style="border-radius: 2px;" icon="Edit" type="primary" @click="createDeploymentDrawer = true" v-loading.fullscreen.lock="fullscreenLoading">创建</el-button>
                 </div>
               </el-col>
               <!-- 搜索框和搜索按钮 -->
               <el-col :span="6">
-                <div>
+                <div style="margin-left: 10px">
                   <!-- clearable能出现一个一键清空的图标 -->
                   <el-input class="deploy-head-search" clearable placeholder="请输入" v-model="searchInput"></el-input>
-                  <el-button style="border-radius:2px;" icon="Search" type="primary" plain>搜索</el-button>
+                  <el-button style="border-radius: 2px" icon="Search" type="primary" plain>搜索</el-button>
                 </div>
               </el-col>
             </el-row>
