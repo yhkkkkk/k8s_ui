@@ -397,6 +397,7 @@ export default {
       fullscreenLoading: false,
       direction: 'rtl',
       createDeploymentDrawer: false,
+      // 创建的deployment属性
       createDeployment: {
         name: '',
         namespace: '',
@@ -409,12 +410,12 @@ export default {
         label: {},
         container_port: ''
       },
-      //创建请求的参数
+      // 发送请求的参数
       createDeploymentData: {
         url: common.k8sDeploymentCreate,
         params: {}
       },
-      //创建deployment的表单校验规则
+      // 创建deployment的表单校验规则
       createDeploymentRules: {
         name: [{
           required: true,
@@ -547,12 +548,12 @@ export default {
     onChange(val) {
       this.contentYaml = val
     },
-    //页面大小发生变化时触发，赋值并重新获取列表
+    // 页面大小发生变化时触发，赋值并重新获取列表
     handleSizeChange(size) {
       this.pagesize = size;
       this.getDeployments()
     },
-    //页数发生变化时触发，复制并重新获取列表
+    // 页数发生变化时触发，复制并重新获取列表
     handleCurrentChange(currentPage) {
       this.currentPage = currentPage;
       this.getDeployments()
@@ -692,11 +693,11 @@ export default {
         let b = item.split("=")
         label[b[0]] = b[1]
       })
-      //将deployment的规格转成cpu和memory
+      // 将deployment的规格转成cpu和memory
       let resourceList = this.createDeployment.resource.split("/")
       cpu = resourceList[0]
       memory = resourceList[1] + "Gi"
-      //赋值
+      // 赋值
       this.createDeploymentData.params = this.createDeployment
       this.createDeploymentData.params.container_port = parseInt(this.createDeployment.container_port)
       this.createDeploymentData.params.label = label

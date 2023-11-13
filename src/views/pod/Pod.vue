@@ -314,9 +314,11 @@ export default {
     }
   },
   methods: {
+    // 将JSON对象转换为YAML字符串
     transYaml(content) {
       return json2yaml.stringify(content)
     },
+    // 将YAML字符串转换为JSON对象
     transObj(content) {
       return yaml2obj.load(content)
     },
@@ -404,6 +406,7 @@ export default {
           })
     },
     updatePod() {
+      // JSON.stringify 将Json对象转换为Json字符串
       let content = JSON.stringify(this.transObj(this.contentYaml))
       this.updatePodData.params.namespace = this.namespaceValue
       this.updatePodData.params.content = content

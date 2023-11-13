@@ -1,6 +1,6 @@
 export default {
     // 后端接口路径
-    loginAuth: 'http://localhost:9090/api/login',
+    loginAuth: 'http://localhost:9090/api/v1/login',
     k8sWorkflowCreate: 'http://localhost:9090/api/v2/k8s/workflow/create',
     k8sWorkflowDetail: 'http://localhost:9090/api/v2/k8s/workflow/detail',
     k8sWorkflowList: 'http://localhost:9090/api/v2/k8s/workflows',
@@ -10,7 +10,7 @@ export default {
     k8sDeploymentUpdate: 'http://localhost:9090/api/v1/k8s/deployment/update',
     k8sDeploymentScale: 'http://localhost:9090/api/v1/k8s/deployment/scale',
     k8sDeploymentRestart: 'http://localhost:9090/api/v1/k8s/deployment/restart',
-    k8sDeploymentDel: 'http://localhost:9090/api/k8s/v1/deployment/del',
+    k8sDeploymentDel: 'http://localhost:9090/api/v1/k8s/deployment/del',
     k8sDeploymentCreate: 'http://localhost:9090/api/v1/k8s/deployment/create',
     k8sDeploymentNumNp: 'http://localhost:9090/api/v1/k8s/deployment/numnp',
     k8sPodList: 'http://localhost:9090/api/v1/k8s/pods',
