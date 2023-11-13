@@ -54,37 +54,52 @@
                 :data="daemonSetList"
                 v-loading="appLoading">
               <el-table-column width="40"></el-table-column>
+              <!-- DaemonSet名字 -->
               <el-table-column align=left label="DaemonSet名">
+                <!-- 插槽，scope.row获取当前行的数据 -->
                 <template v-slot="scope">
                   <a class="daemonset-body-daemonsetname">{{ scope.row.metadata.name }}</a>
                 </template>
               </el-table-column>
+              <!-- 标签 -->
               <el-table-column align=center label="标签">
                 <template v-slot="scope">
+                  <!-- for循环，每个label只显示固定长度，鼠标悬停后气泡弹出框显示完整长度 -->
                   <div v-for="(val, key) in scope.row.metadata.labels" :key="key">
+                    <!-- 气泡弹出框 -->
+                    <!-- placement 弹出位置 -->
+                    <!-- trigger 触发条件 -->
+                    <!-- content 弹出框内容 -->
                     <el-popover
                         placement="right"
                         :width="200"
                         trigger="hover"
                         :content="key + ':' + val">
                       <template #reference>
+                        <!-- ellipsis方法用于剪裁字符串 -->
                         <el-tag style="margin-bottom: 5px" type="warning">{{ ellipsis(key + ":" + val) }}</el-tag>
                       </template>
                     </el-popover>
                   </div>
                 </template>
               </el-table-column>
+              <!-- 容器组 -->
               <el-table-column align=center label="容器组">
+                <!-- 可用数量/总数量,三元运算，若值大于0则显示值，否则显示0 -->
                 <template v-slot="scope">
                   <span>{{ scope.row.status.numberAvailable>0?scope.row.status.numberAvailable:0  }} / {{ scope.row.status.desiredNumberScheduled>0?scope.row.status.desiredNumberScheduled:0 }} </span>
                 </template>
               </el-table-column>
+              <!-- 创建时间 -->
               <el-table-column align=center min-width="100" label="创建时间">
                 <template v-slot="scope">
+                  <!-- timeTrans函数用于将格林威治时间转成北京时间 -->
                   <el-tag type="info">{{ timeTrans(scope.row.metadata.creationTimestamp) }} </el-tag>
                 </template>
               </el-table-column>
+              <!-- 容器镜像 -->
               <el-table-column align=center label="镜像">
+                <!-- 与label的显示逻辑一致 -->
                 <template v-slot="scope">
                   <div v-for="(val, key) in scope.row.spec.template.spec.containers" :key="key">
                     <el-popover

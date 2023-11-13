@@ -124,6 +124,7 @@
                     <el-tab-pane label="终端" name="shell">
                       <el-card shadow="never" style="border-radius:1px;" :body-style="{padding:'5px'}">
                         <el-row :gutter="10">
+                          <!-- 容器选择框 -->
                           <el-col :span="3">
                             <el-select size="small" v-model="containerValue" placeholder="请选择">
                               <el-option v-for="item in containerList" :key="item" :value="item">
@@ -131,13 +132,16 @@
                             </el-select>
                           </el-col>
                           <el-col :span="1">
+                            <!-- 连接按钮 -->
                             <el-button style="border-radius:2px;" size="small" type="primary" @click="initSocket(props.row)">连接</el-button>
                           </el-col>
                           <el-col :span="1">
+                            <!-- 关闭连接按钮 -->
                             <el-button style="border-radius:2px;" size="small" type="danger" @click="closeSocket()">关闭</el-button>
                           </el-col>
                           <el-col :span="24" style="margin-top: 5px">
                             <el-card shadow="never" class="pod-body-shell-card" :body-style="{padding:'5px'}">
+                              <!-- xterm虚拟终端 -->
                               <div id="xterm"></div>
                             </el-card>
                           </el-col>
@@ -221,6 +225,7 @@
 <script>
 import common from "../common/config";
 import httpClient from '../../utils/request';
+// 引入xterm终端依赖
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
@@ -334,7 +339,7 @@ export default {
           .catch(() => {});
     },
     ellipsis(value) {
-      return value.length>15?value.substring(0,15)+'...':value
+      return value.length > 15 ? value.substring(0,15)+'...' : value
     },
     timeTrans(timestamp) {
       let date = new Date(new Date(timestamp).getTime() + 8 * 3600 * 1000)
@@ -515,6 +520,7 @@ export default {
           })
     },
     initTerm() {
+      // 初始化xterm实例
       this.term = new Terminal({
         rendererType: 'canvas', //渲染类型
         rows: 30, //行数
@@ -530,10 +536,13 @@ export default {
           cursor: 'help' //设置光标
         }
       });
+      // 绑定dom
       this.term.open(document.getElementById('xterm'))
+      // 终端适应父元素大小
       const fitAddon = new FitAddon()
       this.term.loadAddon(fitAddon)
       fitAddon.fit();
+      // 获取终端的焦点
       this.term.focus();
       // 支持输入与粘贴方法
       let _this = this; //一定要重新定义一个this，不然this指向会出问题
@@ -544,10 +553,10 @@ export default {
           data: key,
         };
         // this.send(JSON.stringify(msgOrder))
-
-        _this.socket.send(JSON.stringify(msgOrder)); //转换为字符串
+        // 发送数据
+        _this.socket.send(JSON.stringify(msgOrder)); // 转换为字符串
       });
-      //
+      // 发送resize请求
       let msgOrder2 = {
         operation: 'resize',
         cols: this.term.cols,
@@ -555,23 +564,31 @@ export default {
       };
       this.socket.send(JSON.stringify(msgOrder2))
     },
+    // 初始化websocket
     initSocket(row) {
+      // 定义websocket连接地址
       let terminalWsUrl = common.k8sTerminalWs + "?pod_name=" + row.metadata.name + "&container_name=" + this.containerValue + "&namespace=" + this.namespaceValue
+      // 实例化
       this.socket = new WebSocket(terminalWsUrl);
+      // 关闭连接时的方法
       this.socketOnClose();
+      // 建立连接时的方法
       this.socketOnOpen();
+      // 接收消息的方法
       this.socketOnMessage();
       this.socketOnSend();
+      // 报错时的方法
       this.socketOnError();
     },
     socketOnOpen() {
       this.socket.onopen = () => {
-        // 链接成功后
+        // 链接成功后 初始化虚拟终端
         this.initTerm()
       }
     },
     socketOnMessage() {
       this.socket.onmessage = (msg) => {
+        // 接收到消息后将字符串转为对象，输出data内容
         let content = JSON.parse(msg.data)
         this.term.write(content.data)
       }
@@ -585,6 +602,7 @@ export default {
     },
     socketOnClose() {
       this.socket.onclose = () => {
+        // 关闭连接后打印在终端里
         this.term.write("链接已关闭")
         console.log('close socket')
       }
@@ -594,7 +612,9 @@ export default {
         console.log('socket 链接失败')
       }
     },
+    // 关闭连接
     closeSocket() {
+      // 若没有实例化，则不需要关闭
       if (this.socket === null) {
         return
       }
@@ -629,6 +649,7 @@ export default {
     this.getPods()
   },
   beforeUnmount() {
+    // 若websocket连接没有关闭，则在该生命周期关闭
     if ( this.socket !== null ) {
       this.socket.close()
     }
