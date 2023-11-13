@@ -51,7 +51,7 @@
                 </div>
               </el-col>
               <!-- 搜索框和搜索按钮 -->
-              <el-col :span="6" :offset="16">
+              <el-col :span="6">
                 <div>
                   <!-- clearable能出现一个一键清空的图标 -->
                   <el-input class="deploy-head-search" clearable placeholder="请输入" v-model="searchInput"></el-input>
@@ -85,6 +85,10 @@
               </el-table-column>
               <!-- 标签 -->
               <el-table-column align=center label="标签">
+                <!--<template #default="scope">-->
+                <!--<template v-slot:default="scopes">-->
+                <!--<template v-slot="scope">-->
+                <!-- 三者都是作用域插槽的写法 意义一样 -->
                 <template v-slot="scope">
                   <!-- for循环，每个label只显示固定长度，鼠标悬停后气泡弹出
                   框显示完整长度 -->
@@ -488,7 +492,7 @@ export default {
     handleConfirm(obj, operateName, fn) {
       this.confirmContent = '确认继续 ' + operateName + ' 操作吗？'
       // $confirm用于弹出确认框
-      this.$confirm(this.confirmContent, '提示', {
+      this.$confirm(this.confirmContent, '提示', {   // MessageBox.confirm
         confirmButtonText: '确定',
         cancelButtonText: '取消',
       })
@@ -584,7 +588,7 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              message: "服务器内部错误"
+              message: "服务器接口数据获取错误"
               // message: res.msg
             })
           })
@@ -607,7 +611,7 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              message: "服务器内部错误"
+              message: "服务器接口数据获取错误"
               // message: res.msg
             })
           })
@@ -657,7 +661,7 @@ export default {
           // 请求失败的回调函数
           .catch(res => {
             this.$message.error({
-              message: "服务器内部错误"
+              message: "服务器接口数据获取错误"
               // message: res.msg
             });
           })
@@ -709,7 +713,7 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              message: "服务器内部错误"
+              message: "服务器接口数据获取错误"
               // message: res.msg
             })
           })

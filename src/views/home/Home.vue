@@ -3,8 +3,8 @@
   <div class="home">
       <el-collapse v-model="activeNames">
           <el-collapse-item title="集群资源" name="1">
-              <el-row :gutter="10" style="margin-bottom: 10px;">
-                  <el-col :span="5">
+              <el-row :gutter="15" style="margin-bottom: 10px;">
+                  <el-col :span="5" style="margin-left: 10px">
                       <el-card class="home-node-card" :body-style="{padding:'10px'}">
                           <div style="float:left;padding-top:20%">
                               <el-progress  :stroke-width="20" :show-text="false" type="circle" :percentage="namespaceActive/namespaceTotal * 100"></el-progress>
@@ -34,8 +34,8 @@
               </el-row>
           </el-collapse-item>
           <el-collapse-item title="节点资源" name="2">
-              <el-row :gutter="10" style="margin-bottom: 10px;">
-                  <el-col :span="5">
+              <el-row :gutter="15" style="margin-bottom: 10px;">
+                  <el-col :span="5" style="margin-left: 10px">
                       <el-card class="home-node-card" :body-style="{padding:'10px'}">
                           <div style="float:left;padding-top:20%">
                               <el-progress :stroke-width="20" :show-text="false" type="circle" :percentage="nodeTotal/nodeTotal * 100"></el-progress>
@@ -170,7 +170,8 @@ export default {
           })
           .catch(res => {
               this.$message.error({
-              message: res.msg
+                // message: res.msg
+                message: "服务器内部错误"
               })
           })
       },
@@ -201,7 +202,8 @@ export default {
           })
           .catch(res => {
               this.$message.error({
-              message: res.msg
+                // message: res.msg
+                message: "服务器内部错误"
               })
           })
       },
@@ -213,7 +215,8 @@ export default {
           })
           .catch(res => {
               this.$message.error({
-              message: res.msg
+                // message: res.msg
+                message: "服务器内部错误"
               })
           })
       },
@@ -225,7 +228,8 @@ export default {
           })
           .catch(res => {
               this.$message.error({
-              message: res.msg
+                // message: res.msg
+                message: "服务器内部错误"
               })
           })
       },
@@ -237,7 +241,8 @@ export default {
           })
           .catch(res => {
               this.$message.error({
-              message: res.msg
+                // message: res.msg
+                message: "服务器内部错误"
               })
           })
       },
@@ -249,7 +254,8 @@ export default {
           })
           .catch(res => {
               this.$message.error({
-              message: res.msg
+                // message: res.msg
+                message: "服务器内部错误"
               })
           })
       },

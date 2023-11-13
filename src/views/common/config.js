@@ -1,5 +1,5 @@
 export default {
-    //后端接口路径
+    // 后端接口路径
     loginAuth: 'http://localhost:9090/api/login',
     k8sWorkflowCreate: 'http://localhost:9090/api/v2/k8s/workflow/create',
     k8sWorkflowDetail: 'http://localhost:9090/api/v2/k8s/workflow/detail',

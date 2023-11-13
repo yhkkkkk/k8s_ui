@@ -154,7 +154,9 @@
 
 <script>
 import { useRouter } from "vue-router";
+import {Place} from "@element-plus/icons-vue";
 export default {
+  components: {Place},
   data() {
     return {
       //导入头像图片

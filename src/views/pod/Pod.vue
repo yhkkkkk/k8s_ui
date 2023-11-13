@@ -8,7 +8,7 @@
               <el-col :span="6">
                 <div>
                   <span>命名空间: </span>
-                  <el-select v-model="namespaceValue" filterable placeholder="请选择">
+                  <el-select v-model="namespaceValue" filterable placeholder="请选择命名空间">
                     <el-option
                         v-for="(item, index) in namespaceList"
                         :key="index"
@@ -37,7 +37,7 @@
                   <el-button disabled style="border-radius:2px;" icon="Edit" type="primary">创建</el-button>
                 </div>
               </el-col>
-              <el-col :span="6" :offset="16">
+              <el-col :span="6">
                 <div>
                   <el-input class="pod-head-search" clearable placeholder="请输入" v-model="searchInput"></el-input>
                   <el-button style="border-radius:2px;" icon="Search" type="primary" plain @click="getPods()">搜索</el-button>
@@ -50,8 +50,12 @@
       <el-col :span="24">
         <div>
           <el-card class="pod-body-card" shadow="never" :body-style="{padding:'5px'}">
+            <!-- 数据表格 -->
+            <!-- row-key 用来定义行数据的key，结合expand-row-keys使用，往expandKeys中增加key来展开行 -->
+            <!-- expand-row-keys 展开的行的key数组 -->
+            <!-- expand-change 展开触发时，调用这个方法 -->
             <el-table
-                style="width:100%;font-size:12px;margin-bottom:10px;"
+                style="width: 100%; font-size: 12px; margin-bottom: 10px;"
                 :data="podList"
                 v-loading="appLoading"
                 :row-key="getRowKeys"
@@ -60,7 +64,7 @@
               <el-table-column width="10"></el-table-column>
               <!-- 展开 -->
               <el-table-column type="expand">
-                <!-- 插槽，里面是展开的内容,props标识展开的行的数据 -->
+                <!-- 插槽, 里面是展开的内容, props标识展开的行的数据 -->
                 <template #default="props">
                   <el-tabs v-model="activeName" type="card">
                     <!-- tab容器标签页 -->
@@ -77,6 +81,7 @@
                           <el-table-column align=center prop="args" label="启动命令"></el-table-column>
                           <el-table-column align=center label="环境变量">
                             <template v-slot="scope">
+                              <!-- 气泡弹出框，内容是所有的环境变量 -->
                               <el-popover :width="500" placement="left" trigger="hover">
                                 <el-table style="width:100%;font-size:12px;" size="mini" :show-header="false" :data="scope.row.env">
                                   <el-table-column property="name" label="名称"></el-table-column>
@@ -96,15 +101,18 @@
                       <el-card shadow="never" style="border-radius:1px;" :body-style="{padding:'5px'}">
                         <el-row :gutter="10">
                           <el-col :span="3">
+                            <!-- 容器选择框 -->
                             <el-select size="small" v-model="containerValue" placeholder="请选择">
                               <el-option v-for="item in containerList" :key="item" :value="item">
                               </el-option>
                             </el-select>
                           </el-col>
                           <el-col :span="2">
+                            <!-- 查看日志按钮 -->
                             <el-button style="border-radius:2px;" size="small" type="primary" @click="getPodLog(props.row.metadata.name)">查看</el-button>
                           </el-col>
                           <el-col :span="24" style="margin-top: 5px">
+                            <!-- 显示日志内容 -->
                             <el-card shadow="never" class="pod-body-log-card" :body-style="{padding:'5px'}">
                               <span class="pod-body-log-span">{{ logContent }}</span>
                             </el-card>
@@ -153,8 +161,10 @@
               </el-table-column>
               <el-table-column align=center label="状态">
                 <template v-slot="scope">
-                  <div :class="{'success-dot': scope.row.status.phase == 'Running', 'warning-dot':scope.row.status.phase == 'Pending', 'error-dot':scope.row.status.phase != 'Running' && scope.row.status.phase != 'Pending'}"></div>
-                  <span :class="{'success-status': scope.row.status.phase == 'Running', 'warning-status':scope.row.status.phase == 'Pending', 'error-status':scope.row.status.phase != 'Running' && scope.row.status.phase != 'Pending'}">{{ scope.row.status.phase }} </span>
+                  <div :class="{'success-dot': scope.row.status.phase === 'Running', 'warning-dot':scope.row.status.phase === 'Pending',
+                  'error-dot':scope.row.status.phase !== 'Running' && scope.row.status.phase !== 'Pending'}"></div>
+                  <span :class="{'success-status': scope.row.status.phase === 'Running', 'warning-status':scope.row.status.phase === 'Pending',
+                  'error-status':scope.row.status.phase !== 'Running' && scope.row.status.phase !== 'Pending'}">{{ scope.row.status.phase }}</span>
                 </template>
               </el-table-column>
               <el-table-column align=center label="重启数">
@@ -348,7 +358,8 @@ export default {
           .catch(res => {
             this.$message.error({
               // message: res.msg
-              message: "服务器内部错误"
+              // message: "服务器内部错误"
+              message: "服务器接口数据获取错误"
             })
           })
     },
@@ -366,7 +377,7 @@ export default {
           .catch(res => {
             this.$message.error({
               // message: res.msg
-              message: "服务器内部错误"
+              message: "服务器接口数据获取错误"
             })
           })
       this.appLoading = false
@@ -383,7 +394,7 @@ export default {
           .catch(res => {
             this.$message.error({
               // message: res.msg
-              message: "服务器内部错误"
+              message: "服务器接口数据获取错误"
             })
           })
     },
@@ -481,7 +492,7 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              message: "服务器内部错误"
+              message: "服务器接口数据获取错误"
             })
             // this.$message.error({
             //   message: res.msg
@@ -499,7 +510,7 @@ export default {
           .catch(res => {
             this.$message.error({
               // message: res.msg
-              message: "服务器内部错误"
+              message: "服务器接口数据获取错误"
             })
           })
     },
@@ -599,16 +610,17 @@ export default {
         this.getPods()
       }
     },
+    // 若tab标签页切到日志，则重新加载日志内容
     activeName: {
       handler() {
         if ( this.activeName === 'log' ) {
-          this.expandKeys.length == 1 ? this.getPodLog(this.expandKeys[0]) : ''
+          this.expandKeys.length === 1 ? this.getPodLog(this.expandKeys[0]) : ''
         }
       }
     }
   },
   beforeMount() {
-    if (localStorage.getItem('namespace') == undefined || localStorage.getItem('namespace') == 'null') {
+    if (localStorage.getItem('namespace') === undefined || localStorage.getItem('namespace') === 'null') {
       this.namespaceValue = 'default'
     } else {
       this.namespaceValue = localStorage.getItem('namespace')
