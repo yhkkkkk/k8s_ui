@@ -6,7 +6,7 @@
           <!-- 图片 -->
           <el-col :span="24">
             <div>
-              <img class="main-body-img" src="../../assets/img/404.png">
+              <img class="main-body-img" src="../../assets/img/404.png" alt="">
             </div>
           </el-col>
           <!-- 描述 -->

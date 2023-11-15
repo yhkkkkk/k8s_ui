@@ -29,6 +29,5 @@ app.use(GlobalCmComponent, { componentName: "codemirror" });
 
 // 引入element plus
 app.use(ElementPlus);
-app.use(store);
 app.use(router);
 app.mount("#app");

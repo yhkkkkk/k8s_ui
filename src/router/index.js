@@ -11,26 +11,57 @@ const routes = [
     redirect: "/home",
   },
   {
-    path: "/home",
-    name: "概要",
-    icon: "odometer",
-    meta: {
-      title: "概要",
-      requireAuth: false,
-    }, //定义meta元数据
+    path: '/home',
     component: Layout,
+    icon: "odometer",
     children: [
       {
         path: "/home",
         name: "概要",
         icon: "odometer",
+        meta: {title: "概要", requireAuth: true},
+        component: () => import('@/views/home/Home.vue'),
+      }
+    ]
+  },
+  {
+    path: "/cluster",
+    name: "集群",
+    component: Layout,
+    icon: "home-filled",
+    meta: {
+      title: "集群",
+      requireAuth: true
+    },
+    children: [
+      {
+        path: "/cluster/node",
+        name: "Node",
+        icon: "el-icon-s-data",
         meta: {
-          title: "概要",
-          requireAuth: false,
-        }, //定义meta元数据
-        component: () => import("@/views/home/Home.vue"),
+          title: "Node",
+          requireAuth: true
+        },
+        component: () => import("@/views/node/Node.vue")
       },
-    ],
+      {
+        path: "/cluster/namespace",
+        name: "Namespace",
+        icon: "el-icon-document-add",
+        meta: {
+          title: "Namespace",
+          requireAuth: true
+        },
+        component: () => import("@/views/namespace/Namespace.vue")
+      },
+      {
+        path: "/cluster/persistentvolume",
+        name: "PersistentVolume",
+        icon: "el-icon-document-add",
+        meta: {title: "PersistemtVolume", requireAuth: true},
+        component: () => import("@/views/persistentvolume/PersistentVolume.vue")
+      }
+    ]
   },
   {
     path: "/workload",
@@ -82,6 +113,59 @@ const routes = [
     ],
   },
   {
+    path: "/loadbalance",
+    name: "负载均衡",
+    component: Layout,
+    icon: "files",
+    meta: {title: "负载均衡", requireAuth: true},
+    children: [
+      {
+        path: "/loadbalance/service",
+        name: "Service",
+        icon: "el-icon-s-data",
+        meta: {title: "Service", requireAuth: true},
+        component: () => import("@/views/service/Service.vue")
+      },
+      {
+        path: "/loadbalance/ingress",
+        name: "Ingress",
+        icon: "el-icon-document-add",
+        meta: {title: "Ingress", requireAuth: true},
+        component: () => import("@/views/ingress/Ingress.vue")
+      }
+    ]
+  },
+  {
+    path: "/storage",
+    name: "存储与配置",
+    component: Layout,
+    icon: "tickets",
+    meta: {title: "存储与配置", requireAuth: true},
+    children: [
+      {
+        path: "/storage/configmap",
+        name: "Configmap",
+        icon: "el-icon-document-add",
+        meta: {title: "Configmap", requireAuth: true},
+        component: () => import("@/views/configmap/ConfigMap.vue")
+      },
+      {
+        path: "/storage/secret",
+        name: "Secret",
+        icon: "el-icon-document-add",
+        meta: {title: "Secret", requireAuth: true},
+        component: () => import("@/views/secret/Secret.vue")
+      },
+      {
+        path: "/storage/persistentvolumeclaim",
+        name: "PersistentVolumeClaim",
+        icon: "el-icon-s-data",
+        meta: {title: "PersistentVolumeClaim", requireAuth: true},
+        component: () => import("@/views/persistentvolumeclaim/PersistentVolumeClaim.vue")
+      },
+    ]
+  },
+  {
     path: "/404", //视图
     meta: {
       title: "404",
@@ -104,10 +188,13 @@ const router = createRouter({
   routes,
 });
 
-NProgress.inc(0.2); // 进度条递增
+NProgress.inc(100); // 进度条递增
 NProgress.configure({ easing: "ease", speed: 500, showSpinner: true }); // 动画效果、动画速度、进度环
 
 // 路由守卫(拦截)
+// to 要去到某个页面的属性
+// from 从哪个页面来的属性
+// next 处理路由跳转及放行
 router.beforeEach((to, from, next) => {
   // 进度条开始
   NProgress.start();

@@ -1,6 +1,7 @@
 <template>
   <div class="pod">
     <el-row>
+      <!-- 头部1 -->
       <el-col :span="24">
         <div>
           <el-card class="pod-head-card" shadow="never" :body-style="{padding:'10px'}">
@@ -8,7 +9,7 @@
               <el-col :span="6">
                 <div>
                   <span>命名空间: </span>
-                  <el-select v-model="namespaceValue" filterable placeholder="请选择命名空间">
+                  <el-select v-model="namespaceValue" filterable clearable placeholder="请选择命名空间" :no-data-text="'暂无数据'" default-first-option>
                     <el-option
                         v-for="(item, index) in namespaceList"
                         :key="index"
@@ -27,13 +28,13 @@
           </el-card>
         </div>
       </el-col>
+      <!-- 头部2 -->
       <el-col :span="24">
         <div>
           <el-card class="pod-head-card" shadow="never" :body-style="{padding:'10px'}">
             <el-row>
               <el-col :span="2">
                 <div>
-                  <!-- <el-button style="border-radius:2px;" icon="Edit" type="primary">创建</el-button> -->
                   <el-button disabled style="border-radius:2px;" icon="Edit" type="primary">创建</el-button>
                 </div>
               </el-col>
@@ -47,6 +48,7 @@
           </el-card>
         </div>
       </el-col>
+      <!-- 数据表格 -->
       <el-col :span="24">
         <div>
           <el-card class="pod-body-card" shadow="never" :body-style="{padding:'5px'}">
@@ -55,21 +57,23 @@
             <!-- expand-row-keys 展开的行的key数组 -->
             <!-- expand-change 展开触发时，调用这个方法 -->
             <el-table
-                style="width: 100%; font-size: 12px; margin-bottom: 10px;"
+                style="width:100%;font-size:12px;margin-bottom:10px;"
                 :data="podList"
                 v-loading="appLoading"
                 :row-key="getRowKeys"
                 :expand-row-keys="expandKeys"
-                @expand-change="expandChange">
+                @expand-change="expandChange"
+                :empty-text="'暂无数据'">
               <el-table-column width="10"></el-table-column>
               <!-- 展开 -->
               <el-table-column type="expand">
-                <!-- 插槽, 里面是展开的内容, props标识展开的行的数据 -->
+                <!-- 插槽，里面是展开的内容,props标识展开的行的数据 -->
                 <template #default="props">
                   <el-tabs v-model="activeName" type="card">
                     <!-- tab容器标签页 -->
                     <el-tab-pane label="容器" name="container">
                       <el-card shadow="never" style="border-radius:1px;" :body-style="{padding:'5px'}">
+                        <!-- 嵌套数据表格 -->
                         <el-table
                             style="width:100%;font-size:12px;"
                             :data="props.row.spec.containers">
@@ -124,8 +128,8 @@
                     <el-tab-pane label="终端" name="shell">
                       <el-card shadow="never" style="border-radius:1px;" :body-style="{padding:'5px'}">
                         <el-row :gutter="10">
-                          <!-- 容器选择框 -->
                           <el-col :span="3">
+                            <!-- 容器选择框 -->
                             <el-select size="small" v-model="containerValue" placeholder="请选择">
                               <el-option v-for="item in containerList" :key="item" :value="item">
                               </el-option>
@@ -153,9 +157,9 @@
               </el-table-column>
               <el-table-column align=left label="Pod名">
                 <template v-slot="scope">
-                  <!-- 三元运算：expandMap[scope.row.metadata.name]为1则触发关闭（expandedRows为空数组），为0则触发展开expandedRows有值 -->
-                  <a class="pod-body-podname" @click="expandMap[scope.row.metadata.name] ?
-                  expandChange(scope.row, []) : expandChange(scope.row, [scope.row])">{{ scope.row.metadata.name }}</a>
+                  <!-- 三元运算：expandMap[scope.row.metadata.name]为1则
+                  触发关闭（expandedRows为空数组），为0则触发展开expandedRows有值 -->
+                  <a class="pod-body-podname" @click="expandMap[scope.row.metadata.name] ? expandChange(scope.row, []) : expandChange(scope.row, [scope.row])">{{ scope.row.metadata.name }}</a>
                 </template>
               </el-table-column>
               <el-table-column align=center min-width="150" label="节点">
@@ -165,10 +169,8 @@
               </el-table-column>
               <el-table-column align=center label="状态">
                 <template v-slot="scope">
-                  <div :class="{'success-dot': scope.row.status.phase === 'Running', 'warning-dot':scope.row.status.phase === 'Pending',
-                  'error-dot':scope.row.status.phase !== 'Running' && scope.row.status.phase !== 'Pending'}"></div>
-                  <span :class="{'success-status': scope.row.status.phase === 'Running', 'warning-status':scope.row.status.phase === 'Pending',
-                  'error-status':scope.row.status.phase !== 'Running' && scope.row.status.phase !== 'Pending'}">{{ scope.row.status.phase }}</span>
+                  <div :class="{'success-dot':scope.row.status.phase == 'Running', 'warning-dot':scope.row.status.phase == 'Pending', 'error-dot':scope.row.status.phase != 'Running' && scope.row.status.phase != 'Pending'}"></div>
+                  <span :class="{'success-status':scope.row.status.phase == 'Running', 'warning-status':scope.row.status.phase == 'Pending', 'error-status':scope.row.status.phase != 'Running' && scope.row.status.phase != 'Pending'}">{{ scope.row.status.phase }} </span>
                 </template>
               </el-table-column>
               <el-table-column align=center label="重启数">
@@ -203,6 +205,7 @@
         </div>
       </el-col>
     </el-row>
+    <!-- 展示YAML信息的弹框 -->
     <el-dialog title="YAML信息" v-model="yamlDialog" width="45%" top="5%">
       <codemirror
           :value="contentYaml"
@@ -213,10 +216,10 @@
           @change="onChange"
       ></codemirror>
       <template #footer>
-        <span class="dialog-footer">
-          <el-button @click="yamlDialog = false">取 消</el-button>
-          <el-button type="primary" @click="updatePod()">更 新</el-button>
-        </span>
+                <span class="dialog-footer">
+                    <el-button @click="yamlDialog = false">取 消</el-button>
+                    <el-button type="primary" @click="updatePod()">更 新</el-button>
+                </span>
       </template>
     </el-dialog>
   </div>
@@ -225,7 +228,7 @@
 <script>
 import common from "../common/config";
 import httpClient from '../../utils/request';
-// 引入xterm终端依赖
+//引入xterm终端依赖
 import { Terminal } from 'xterm';
 import { FitAddon } from 'xterm-addon-fit';
 import 'xterm/css/xterm.css';
@@ -314,11 +317,9 @@ export default {
     }
   },
   methods: {
-    // 将JSON对象转换为YAML字符串
     transYaml(content) {
       return json2yaml.stringify(content)
     },
-    // 将YAML字符串转换为JSON对象
     transObj(content) {
       return yaml2obj.load(content)
     },
@@ -341,7 +342,7 @@ export default {
           .catch(() => {});
     },
     ellipsis(value) {
-      return value.length > 15 ? value.substring(0,15)+'...' : value
+      return value.length>15?value.substring(0,15)+'...':value
     },
     timeTrans(timestamp) {
       let date = new Date(new Date(timestamp).getTime() + 8 * 3600 * 1000)
@@ -364,9 +365,7 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              // message: res.msg
-              // message: "服务器内部错误"
-              message: "服务器接口数据获取错误"
+              message: res.msg
             })
           })
     },
@@ -383,8 +382,7 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              // message: res.msg
-              message: "服务器接口数据获取错误"
+              message: res.msg
             })
           })
       this.appLoading = false
@@ -400,13 +398,11 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              // message: res.msg
-              message: "服务器接口数据获取错误"
+              message: res.msg
             })
           })
     },
     updatePod() {
-      // JSON.stringify 将Json对象转换为Json字符串
       let content = JSON.stringify(this.transObj(this.contentYaml))
       this.updatePodData.params.namespace = this.namespaceValue
       this.updatePodData.params.content = content
@@ -441,7 +437,7 @@ export default {
     },
     handleConfirm(obj, operateName, fn) {
       this.confirmContent = '确认继续 ' + operateName + ' 操作吗？'
-      this.$confirm(this.confirmContent, '提示', {
+      this.$confirm(this.confirmContent,'提示',{
         confirmButtonText: '确定',
         cancelButtonText: '取消',
       })
@@ -457,33 +453,33 @@ export default {
     getRowKeys(row) {
       return row.metadata.name
     },
-    // row，展开的当前行的数据
-    // expandedRows，展开的所有行的数据组成的数组，但是这里用法是只会有一行，也就是数组长度永远为1
+    //row，展开的当前行的数据
+    //expandedRows，展开的所有行的数据组成的数组，但是这里用法是只会有一行，也就是数组长度永远为1
     expandChange(row, expandedRows) {
-      // 初始化变量
-      // 清空expandKeys，代表关闭所有展开的行
+      //初始化变量
+      //清空expandKeys，代表关闭所有展开的行
       this.expandKeys = []
-      // 清空日志内容
+      //清空日志内容
       this.logContent= ''
-      // 清空containervalue，展开时不显示上次的值
+      //清空containervalue，展开时不显示上次的值
       this.containerValue = ''
-      // 将tab标签页顶部页面调成容器
+      //将tab标签页顶部页面调成容器
       this.activeName = 'container'
-      // expandedRows.length == 1表示展开，expandedRows.length == 0 表示关闭
+      //expandedRows.length == 1表示展开，expandedRows.length == 0 表示关闭
       if (expandedRows.length > 0) {
-        // expandMap key表示展开过的行的key，值为1表示展开标记，值为0表示关闭标记
-        // expandMap用于数据表格点击name的展开，用于判断这一行是展开还是关闭的行为
+        //expandMap key表示展开过的行的key，值为1表示展开标记，值为0表示关闭标记
+        //expandMap用于数据表格点击name的展开，用于判断这一行是展开还是关闭的行为
         this.expandMap[row.metadata.name] = 1
-        // 将expandMap除了row.metadata.name，其他key的值都置为0
+        //将expandMap除了row.metadata.name，其他key的值都置为0
         this.setExpandMap(row.metadata.name)
-        // 这里才是真正的展开，将row.metadata.name添加到expandKeys数组中展开，然后执行方法获取container
+        //这里才是真正的展开，将row.metadata.name添加到expandKeys数组中展开，然后执行方法获取container
         row ? (this.expandKeys.push(row.metadata.name), this. getPodContainer(row)) : ''
       } else {
-        // 关闭标记
+        //关闭标记
         this.expandMap[row.metadata.name] = 0
       }
     },
-    // 匹配expandMap中podName，不相等的全都置为0，意为除了podName这行，其他全都标记关闭
+    //匹配expandMap中podName，不相等的全都置为0，意为除了podName这行，其他全都标记关闭
     setExpandMap(podName) {
       let key
       for ( key in this.expandMap ) {
@@ -500,11 +496,8 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              message: "服务器接口数据获取错误"
+              message: res.msg
             })
-            // this.$message.error({
-            //   message: res.msg
-            // })
           })
     },
     getPodLog(podName) {
@@ -517,13 +510,12 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              // message: res.msg
-              message: "服务器接口数据获取错误"
+              message: res.msg
             })
           })
     },
     initTerm() {
-      // 初始化xterm实例
+      //初始化xterm实例
       this.term = new Terminal({
         rendererType: 'canvas', //渲染类型
         rows: 30, //行数
@@ -539,27 +531,26 @@ export default {
           cursor: 'help' //设置光标
         }
       });
-      // 绑定dom
+      //绑定dom
       this.term.open(document.getElementById('xterm'))
-      // 终端适应父元素大小
+      //终端适应父元素大小
       const fitAddon = new FitAddon()
       this.term.loadAddon(fitAddon)
       fitAddon.fit();
-      // 获取终端的焦点
+      //获取终端的焦点
       this.term.focus();
-      // 支持输入与粘贴方法
       let _this = this; //一定要重新定义一个this，不然this指向会出问题
+      //onData方法用于定义输入的动作
       this.term.onData(function (key) {
-        // 这里key值是你输入的值，数据格式order一定要找后端要！！！！
+        // 这里key值是输入的值，数据格式就是后端定义的 {"operation":"stdin","data":"ls"}
         let msgOrder = {
           operation: 'stdin',
           data: key,
         };
-        // this.send(JSON.stringify(msgOrder))
-        // 发送数据
-        _this.socket.send(JSON.stringify(msgOrder)); // 转换为字符串
+        //发送数据
+        _this.socket.send(JSON.stringify(msgOrder));
       });
-      // 发送resize请求
+      //发送resize请求
       let msgOrder2 = {
         operation: 'resize',
         cols: this.term.cols,
@@ -567,47 +558,38 @@ export default {
       };
       this.socket.send(JSON.stringify(msgOrder2))
     },
-    // 初始化websocket
+    //初始化websocket
     initSocket(row) {
-      // 定义websocket连接地址
+      //定义websocket连接地址
       let terminalWsUrl = common.k8sTerminalWs + "?pod_name=" + row.metadata.name + "&container_name=" + this.containerValue + "&namespace=" + this.namespaceValue
-      // 实例化
+      //实例化
       this.socket = new WebSocket(terminalWsUrl);
-      // 关闭连接时的方法
+      //关闭连接时的方法
       this.socketOnClose();
-      // 建立连接时的方法
+      //建立连接时的方法
       this.socketOnOpen();
-      // 接收消息的方法
+      //接收消息的方法
       this.socketOnMessage();
-      this.socketOnSend();
-      // 报错时的方法
+      //报错时的方法
       this.socketOnError();
     },
     socketOnOpen() {
       this.socket.onopen = () => {
-        // 链接成功后 初始化虚拟终端
+        //简历连接成功后，初始化虚拟终端
         this.initTerm()
       }
     },
     socketOnMessage() {
       this.socket.onmessage = (msg) => {
-        // 接收到消息后将字符串转为对象，输出data内容
+        //接收到消息后将字符串转为对象，输出data内容
         let content = JSON.parse(msg.data)
         this.term.write(content.data)
       }
     },
-    socketOnSend() {
-      this.socket.onsend = (msgOrder) => {
-        let order = []
-        order.push(msgOrder)
-        this.socket.send(JSON.stringify(order));
-      }
-    },
     socketOnClose() {
       this.socket.onclose = () => {
-        // 关闭连接后打印在终端里
+        //关闭连接后打印在终端里
         this.term.write("链接已关闭")
-        console.log('close socket')
       }
     },
     socketOnError() {
@@ -615,9 +597,9 @@ export default {
         console.log('socket 链接失败')
       }
     },
-    // 关闭连接
+    //关闭连接
     closeSocket() {
-      // 若没有实例化，则不需要关闭
+      //若没有实例化，则不需要关闭
       if (this.socket === null) {
         return
       }
@@ -633,26 +615,24 @@ export default {
         this.getPods()
       }
     },
-    // 若tab标签页切到日志，则重新加载日志内容
+    //若tab标签页切到日志，则重新加载日志内容
     activeName: {
       handler() {
-        if ( this.activeName === 'log' ) {
-          this.expandKeys.length === 1 ? this.getPodLog(this.expandKeys[0]) : ''
+        if ( this.activeName == 'log' ) {
+          this.expandKeys.length == 1 ? this.getPodLog(this.expandKeys[0]) : ''
         }
       }
     }
   },
   beforeMount() {
-    if (localStorage.getItem('namespace') === undefined || localStorage.getItem('namespace') === 'null') {
-      this.namespaceValue = 'default'
-    } else {
+    if (localStorage.getItem('namespace') !== undefined && localStorage.getItem('namespace') !== null) {
       this.namespaceValue = localStorage.getItem('namespace')
     }
     this.getNamespaces()
     this.getPods()
   },
   beforeUnmount() {
-    // 若websocket连接没有关闭，则在该生命周期关闭
+    //若websocket连接没有关闭，则在改生命周期关闭
     if ( this.socket !== null ) {
       this.socket.close()
     }
@@ -715,10 +695,10 @@ export default {
 .error-status {
   color: rgb(226, 23, 23);
 }
-/deep/ .el-tabs__item {
+:deep(.el-tabs__item) {
   font-size: 12px;
 }
-/deep/ .el-tabs__header {
+:deep(.el-tabs__header) {
   margin-bottom: 8px;
 }
 .pod-body-log-card, .pod-body-shell-card {

@@ -8,7 +8,7 @@
               <el-col :span="6">
                 <div>
                   <span>命名空间: </span>
-                  <el-select v-model="namespaceValue" filterable placeholder="请选择命名空间">
+                  <el-select v-model="namespaceValue" filterable clearable placeholder="请选择命名空间" :no-data-text="'暂无数据'" default-first-option>
                     <el-option
                         v-for="(item, index) in namespaceList"
                         :key="index"
@@ -52,7 +52,8 @@
             <el-table
                 style="width: 100%; font-size: 12px; margin-bottom: 10px;"
                 :data="daemonSetList"
-                v-loading="appLoading">
+                v-loading="appLoading"
+                :empty-text="'暂无数据'">
               <el-table-column width="40"></el-table-column>
               <!-- DaemonSet名字 -->
               <el-table-column align=left label="DaemonSet名">
@@ -382,11 +383,15 @@ export default {
   margin-right:10px;
 }
 .daemonset-body-daemonsetname {
+  /* 用于daemonset-body元素下的daemonsetname元素着色 */
   color: #4795EE;
 }
 .daemonset-body-daemonsetname:hover {
+  /* 当daemonsetbody元素下的daemonsetname元素被鼠标悬停时着色 */
   color: rgb(84, 138, 238);
+  /* 改变鼠标指针形状为手形 */
   cursor: pointer;
+  /* 增加文本的加粗效果 */
   font-weight: bold;
 }
 </style>

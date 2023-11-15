@@ -8,7 +8,7 @@
               <el-col :span="6">
                 <div>
                   <span>命名空间: </span>
-                  <el-select v-model="namespaceValue" filterable placeholder="请选择命名空间">
+                  <el-select v-model="namespaceValue" filterable clearable placeholder="请选择命名空间" :no-data-text="'暂无数据'" default-first-option>
                     <el-option
                         v-for="(item, index) in namespaceList"
                         :key="index"
@@ -52,7 +52,8 @@
             <el-table
                 style="width: 100%; font-size: 12px; margin-bottom: 10px;"
                 :data="statefulSetList"
-                v-loading="appLoading">
+                v-loading="appLoading"
+                :empty-text="'暂无数据'">
               <el-table-column width="40"></el-table-column>
               <el-table-column align=left label="StatefulSet名">
                 <template v-slot="scope">

@@ -99,14 +99,9 @@
                 <!-- separator 分隔符 -->
                 <el-breadcrumb separator="/">
                   <!-- :to="{ path: '/' }"表示跳转到/路径 -->
-                  <el-breadcrumb-item :to="{ path: '/' }"
-                    >工作台</el-breadcrumb-item
-                  >
+                  <el-breadcrumb-item :to="{ path: '/' }">工作台</el-breadcrumb-item>
                   <!-- this.$route.matched 可以拿到当前页面的路由信息 -->
-                  <template
-                    v-for="(matched, m) in this.$route.matched"
-                    :key="m"
-                  >
+                  <template v-for="(matched,m) in this.$route.matched" :key="m">
                     <el-breadcrumb-item v-if="matched.name !== undefined">
                       {{ matched.name }}
                     </el-breadcrumb-item>

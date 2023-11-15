@@ -16,7 +16,9 @@
                   <!-- placeholder 默认展示 -->
                   <!-- label 展示内容 -->
                   <!-- value 绑定到v-model的值中 -->
-                  <el-select v-model="namespaceValue" placeholder="请选择命名空间" filterable>
+                  <!-- value 是选项的值 用于处理和识别选项 -->
+                  <!-- :no-data-text="'暂无数据'" 没数据时显示 -->
+                  <el-select v-model="namespaceValue" placeholder="请选择命名空间" filterable clearable :no-data-text="'暂无数据'" default-first-option>
                     <el-option
                         v-for="(item, index) in namespacesList"
                         :key="index"
@@ -29,8 +31,9 @@
               <!-- 刷新按钮 -->
               <el-col :span="2" :offset="16">
                 <div>
+                  <!-- plain代表是否朴素按钮 -->
                   <!-- 每次刷新，都重新调一次list接口，刷新表格中的数据 -->
-                  <el-button style="border-radius:2px;" icon="Refresh" plain>刷新</el-button>
+                  <el-button style="border-radius:2px;" icon="Refresh" plain @click="getDeployments()">刷新</el-button>
                 </div>
               </el-col>
             </el-row>
@@ -55,7 +58,7 @@
                 <div>
                   <!-- clearable能出现一个一键清空的图标 -->
                   <el-input class="deploy-head-search" clearable placeholder="请输入" v-model="searchInput"></el-input>
-                  <el-button style="border-radius: 2px" icon="Search" type="primary" plain>搜索</el-button>
+                  <el-button style="border-radius: 2px" icon="Search" type="primary" plain @click="getDeployments()">搜索</el-button>
                 </div>
               </el-col>
             </el-row>
@@ -69,11 +72,13 @@
           <el-card class="deploy-body-card" shadow="never" :body-style="{padding:'5px'}">
             <!-- 数据表格 -->
             <!-- v-loading用于加载时的loading动画 true表示显示 false表示不显示 stripe代表斑马纹状表格 -->
+            <!-- :empty-text="'暂无数据'" 表格没有数据时显示 -->
             <el-table
                 style="width: 100%; font-size: 12px; margin-bottom: 15px;"
                 :data="deploymentList"
                 stripe
-                v-loading="appLoading">
+                v-loading="appLoading"
+                :empty-text="'暂无数据'">
               <!-- Deployment名的最左侧留出20px的宽度 -->
               <el-table-column width="50"></el-table-column>
               <!-- deployment名字 -->
@@ -145,7 +150,7 @@
               </el-table-column>
               <!-- 操作列，放按钮 -->
               <el-table-column align=center label="操作" width="400">
-                <template v-slot="scope">
+                <template v-slot="scope"> <!-- scope作用域插槽 代表行数据 -->
                   <el-button size="small" style="border-radius:2px;"
                              icon="Edit" type="primary" plain @click="getDeploymentDetail(scope)">YAML</el-button>
                   <el-button size="small" style="border-radius:2px;"
@@ -309,12 +314,6 @@ import httpClient from "@/utils/request";
 import { WarningFilled } from "@element-plus/icons-vue";
 import yaml2obj from 'js-yaml';
 import json2yaml from 'json2yaml';
-//codemirror编辑器
-import { GlobalCmComponent } from "codemirror-editor-vue3";
-// 引入主题 可以从 codemirror/theme/ 下引入多个
-import 'codemirror/theme/idea.css'
-// 引入语言模式 可以从 codemirror/mode/ 下引入多个
-import 'codemirror/mode/yaml/yaml.js'
 
 export default {
   name: 'Deployment',
@@ -406,6 +405,7 @@ export default {
         resource: '',
         health_check: false,
         health_path: '',
+        // 标签
         label_str: '',
         label: {},
         container_port: ''
@@ -579,8 +579,7 @@ export default {
       this.getDeploymentsData.params.page = this.currentPage
       this.getDeploymentsData.params.limit = this.pagesize
       httpClient.get(this.getDeploymentsData.url, {
-        params:
-        this.getDeploymentsData.params
+        params: this.getDeploymentsData.params
       })
           .then(res => {
           // 响应成功，获取deployment列表和total
@@ -601,7 +600,8 @@ export default {
       this.getDeploymentDetailData.params.deployment_name = e.row.metadata.name
       this.getDeploymentDetailData.params.namespace = this.namespaceValue
       httpClient.get(this.getDeploymentDetailData.url, {params:
-        this.getDeploymentDetailData.params})
+        this.getDeploymentDetailData.params
+      })
           .then(res => {
             // 响应成功，获得deployment详情
             this.deploymentDetail = res.data
@@ -718,14 +718,14 @@ export default {
               // message: res.msg
             })
           })
-      //重置表单
+      // 重置表单
       this.resetForm('createDeployment')
-      //关闭加载动画
+      // 关闭加载动画
       this.fullscreenLoading = false
-      //关闭抽屉
+      // 关闭抽屉
       this.createDeploymentDrawer = false
     },
-    //重置表单方法，element plus课程讲过的
+    //重置表单方法
     resetForm(formName) {
       this.$refs[formName].resetFields()
     },
