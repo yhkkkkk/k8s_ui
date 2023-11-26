@@ -149,9 +149,9 @@
 
 <script>
 import { useRouter } from "vue-router";
-import {Place} from "@element-plus/icons-vue";
+import {Connection, Place} from "@element-plus/icons-vue";
 export default {
-  components: {Place},
+  components: {Connection, Place},
   data() {
     return {
       //导入头像图片
@@ -300,5 +300,9 @@ export default {
   font-size: 14px;
   text-align: center;
   line-height: 60px;
+}
+.common-layout{
+  /*background: linear-gradient(to right, violet, indigo) !important;*/
+  /*background: linear-gradient(60deg, rgba(84,58,183,1) 0%, rgba(0,172,193,1) 100%);*/
 }
 </style>

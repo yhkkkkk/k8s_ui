@@ -84,11 +84,13 @@
           <el-col :span="5">
             <el-card class="home-node-card" :body-style="{padding:'10px'}">
               <div style="float:left;padding-top:20%">
-                <el-progress :stroke-width="20" :show-text="false" type="circle" :percentage="nodePodAllocatable/nodePodAllocatable * 100"></el-progress>
+<!--                <el-progress :stroke-width="20" :show-text="false" type="circle" :percentage="nodePodAllocatable/nodePodAllocatable * 100"></el-progress>-->
+                <el-progress :stroke-width="20" :show-text="false" type="circle" :percentage="6/8 * 100"></el-progress>
               </div>
               <div>
                 <p class="home-node-card-title">POD: 可分配 / 容量</p>
-                <p class="home-node-card-num">{{ nodePodAllocatable }}/{{ nodePodAllocatable }}</p>
+<!--                <p class="home-node-card-num">{{ nodePodAllocatable }}/{{ nodePodAllocatable }}</p>-->
+                <p class="home-node-card-num">6/8</p>
               </div>
             </el-card>
           </el-col>
@@ -192,7 +194,7 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              message: res.msg
+              message: "服务器接口数据获取错误"
             })
           })
     },
@@ -239,7 +241,7 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              message: res.msg
+              message: "服务器接口数据获取错误"
             })
           })
     },
@@ -252,7 +254,7 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              message: res.msg
+              message: "服务器接口数据获取错误"
             })
           })
     },
@@ -266,7 +268,7 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              message: res.msg
+              message: "服务器接口数据获取错误"
             })
           })
     },
@@ -280,7 +282,7 @@ export default {
           })
           .catch(res => {
             this.$message.error({
-              message: res.msg
+              message: "服务器接口数据获取错误"
             })
           })
     },
@@ -294,7 +296,7 @@ export default {
       //echarts作图配置
       this.podNumDash.setOption({
         //标题及字体颜色
-        title: { text: 'Pods per Namespace', textStyle: {color:'rgb(134, 135, 136)'}},
+        title: { text: 'Pods per Namespace', textStyle: { color: 'rgb(134, 135, 136)' } },
         //图表颜色
         color: ['#67E0E3', '#9FE6B8', '#FFDB5C','#ff9f7f', '#fb7293', '#E062AE', '#E690D1', '#e7bcf3', '#9d96f5', '#8378EA', '#96BFFF'],
         //提示框
@@ -330,7 +332,7 @@ export default {
             interval: 0,
             //格式化轴标签
             formatter: function (value) {
-              return value.length>5?value.substring(0,5)+'...':value
+              return value.length>5 ? value.substring(0,5)+'...' : value
             }
           },
         },
@@ -379,7 +381,7 @@ export default {
           axisLabel:{
             interval: 0,
             formatter: function (value) {
-              return value.length>5?value.substring(0,5)+'...':value
+              return value.length>5 ? value.substring(0,5)+'...' : value
             }
           },
         },
@@ -412,8 +414,8 @@ export default {
 
 <style scoped>
 /* deep可以同时影响一个组件中子组件的样式 */
-/* 写法一 /deep/*/
-/* 写法二 :deep */
+/* 写法一 :deep */
+/* 写法二 /deep/*/
 :deep(.el-collapse-item__header) {
   font-size: 16px;
 }

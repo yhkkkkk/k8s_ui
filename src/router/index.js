@@ -7,6 +7,12 @@ import Layout from "@/layout/Layout.vue";
 
 const routes = [
   {
+    path: '/login',  //url路径
+    component: () => import('@/views/login/Login.vue'),  //视图组件
+    icon: "odometer",  //图标
+    meta: {title: "登录", requireAuth: false},  //meta元信息
+  },
+  {
     path: "/", //视图
     redirect: "/home",
   },
@@ -21,6 +27,20 @@ const routes = [
         icon: "odometer",
         meta: {title: "概要", requireAuth: true},
         component: () => import('@/views/home/Home.vue'),
+      }
+    ]
+  },
+  {
+    path: '/workflow',
+    component: Layout,
+    icon: "VideoPlay",
+    children: [
+      {
+        path: "/workflow",
+        name: "工作流",
+        icon: "VideoPlay",
+        meta: {title: "工作流", requireAuth: true},
+        component: () => import('@/views/workflow/Workflow.vue')
       }
     ]
   },
@@ -175,6 +195,14 @@ const routes = [
       import(/* webpackChunkName: "404" */ "@/views/common/404.vue"),
   },
   {
+    path: '/403',
+    component: () => import('@/views/common/403.vue'),
+    meta: {
+      title: '403'
+    }
+  },
+  //其他路径跳转至404页面
+  {
     path: "/:pathMatch(.*)", //视图
     redirect: "/404",
   },
@@ -226,8 +254,8 @@ router.beforeEach((to, from, next) => {
   // }
 });
 
-// 关闭进度条
 router.afterEach(() => {
+  // 关闭进度条
   NProgress.done();
 });
 
